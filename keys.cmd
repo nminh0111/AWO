@@ -1,13 +1,18 @@
 @echo off
-:: ===== WINDOWS CLIENT =====
-set WIN10_PRO=XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-set WIN11_PRO=XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+:: ===============================
+:: WINDOWS CLIENT (GVLK)
+:: ===============================
+set WIN10_PRO_KMS=W269N-WFGWX-YVC9B-4J6C9-T83GX
+set WIN11_PRO_KMS=W269N-WFGWX-YVC9B-4J6C9-T83GX
 
-:: ===== WINDOWS SERVER =====
-set WS2019_STD=WMDGN-G9PQG-XVVXX-R3X43-63DFG
-set WS2022_STD=XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+:: ===============================
+:: WINDOWS SERVER (GVLK)
+:: ===============================
+set WS2019_DC_KMS=WX4NM-KYWYW-QJJR4-XV3QB-6VM33
+set WS2022_DC_KMS=WX4NM-KYWYW-QJJR4-XV3QB-6VM33
 
-:: ===== OFFICE =====
-set O2019_PROPLUS=XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-
-set O2021_PROPLUS=XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+:: ===============================
+:: KMS SERVER
+:: ===============================
+set KMS_HOST=kms.digiboy.ir
+set KMS_PORT=1688
