@@ -2,15 +2,15 @@
 setlocal EnableDelayedExpansion
 title Windows Activation (KMS)
 
-:: =======================
-:: KMS CONFIG (EDIT HERE)
-:: =======================
+:: ===============================
+:: KMS CONFIG
+:: ===============================
 set KMS_HOST=KMS.DIGIBOY.IR
 set KMS_PORT=1688
 
-:: =======================
+:: ===============================
 :: KMS CLIENT KEYS (GVLK)
-:: =======================
+:: ===============================
 
 :: Windows Server 2022
 set WS2022_DC=WX4NM-KYWYW-QJJR4-XV3QB-6VM33
@@ -45,38 +45,76 @@ set W10_ENTN=DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4
 set W10_ENTG=YYVX9-NTFWV-6MDM3-9PT4T-4M68B
 set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
 
-:: =======================
+:: ===============================
 :: MENU
-:: =======================
+:: ===============================
 :MENU
 cls
-echo ===============================
-echo   Windows Activation (KMS)
-echo ===============================
-echo 1. Check activation status
-echo 2. Activate Windows
-echo 3. Exit
+color 0A
+echo ============================================================
+echo                 WINDOWS ACTIVATION (KMS)
+echo ============================================================
 echo.
-set /p CHOICE=Choose: 
+echo   1. Check OS and activation status
+echo   2. Activate Windows (KMS)
+echo   3. Exit
+echo.
+echo ------------------------------------------------------------
+set /p CHOICE=   Choose an option: 
 
 if "%CHOICE%"=="1" goto CHECK
 if "%CHOICE%"=="2" goto ACTIVATE
 if "%CHOICE%"=="3" exit /b
 goto MENU
 
+:: ===============================
+:: CHECK STATUS
+:: ===============================
 :CHECK
 cls
+color 0B
+echo ============================================================
+echo                 SYSTEM INFORMATION
+echo ============================================================
+echo.
+
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+
+echo   Operating System : %PRODUCT%
+echo   Edition          : %EDITION%
+echo   Build            : %BUILD%
+echo   Architecture     : %PROCESSOR_ARCHITECTURE%
+echo.
+
+echo   Activation Status:
 cscript //nologo %windir%\system32\slmgr.vbs /xpr
 echo.
-pause
+
+color 0E
+echo   Press any key to go back to menu...
+pause >nul
 goto MENU
 
+:: ===============================
+:: ACTIVATE
+:: ===============================
 :ACTIVATE
 cls
+color 0F
+echo ============================================================
+echo              WINDOWS KMS ACTIVATION PROCESS
+echo ============================================================
+echo.
 
-:: Detect Windows
+:: Detect OS
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+
+echo   Detected OS  : %PRODUCT%
+echo   Edition     : %EDITION%
+echo.
 
 set KEY=
 
@@ -116,28 +154,41 @@ if "%EDITION%"=="ServerEssentials" (
 )
 
 if "%KEY%"=="" (
-    echo Unsupported Windows edition
-    pause
+    color 0C
+    echo   Unsupported Windows edition.
+    color 0E
+    echo.
+    echo   Press any key to return to menu...
+    pause >nul
     goto MENU
 )
 
-:: KMS activate
+:: Activate
 cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
-:: Result (KMS correct check)
 echo.
+echo ============================================================
+echo                    ACTIVATION RESULT
+echo ============================================================
+echo.
+
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-echo %STATUS%
+echo   %STATUS%
 echo.
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
-    echo ACTIVATION SUCCESS (KMS)
+    color 0A
+    echo   WINDOWS IS SUCCESSFULLY ACTIVATED (KMS)
 ) else (
-    echo ACTIVATION FAILED
+    color 0C
+    echo   WINDOWS ACTIVATION FAILED
 )
 
-pause
+color 0E
+echo.
+echo   Press any key to go back to menu...
+pause >nul
 goto MENU
