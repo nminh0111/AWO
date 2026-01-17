@@ -113,10 +113,8 @@ for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Curre
 
 
 
-set LABEL_PAD=................
-
-echo   Detected OS%LABEL_PAD%: %PRODUCT%
-echo   Edition%LABEL_PAD%%LABEL_PAD%: %EDITION%
+echo   Detected OS             : %PRODUCT%
+echo   Edition                 : %EDITION%
 echo.
 
 set KEY=
@@ -178,20 +176,15 @@ echo.
 
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
 
-set PAD=..............
-
-echo ACTIVATION RESULT
-echo ------------------------------------------------------------
-
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     color 0A
-    echo   Activation Status%PAD%: [Successful]
-    echo   License Validity%PAD%%PAD%: [180 Days]
+    echo   Activation Status       : [Successful]
+    echo   Expiration              : %STATUS%
 ) else (
     color 0C
-    echo   Activation Status%PAD%: [Failed]
-    echo   License State%PAD%%PAD%: [Notification Mode]
+    echo   Activation Status       : [Failed]
+    echo   License State           : [Notification Mode]
 )
 
 
