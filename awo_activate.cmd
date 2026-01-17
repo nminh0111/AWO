@@ -98,6 +98,21 @@ pause >nul
 goto MENU
 
 :: ===============================
+:: PRINT WITH FIXED COLUMN
+:: ===============================
+:print
+:: %1 = Label | %2 = Value
+set "LABEL=%~1"
+set "VALUE=%~2"
+set "PAD=................................................"
+
+set "OUT=%LABEL%%PAD%"
+set "OUT=%OUT:~0,32%"
+
+echo   %OUT%: %VALUE%
+exit /b
+
+:: ===============================
 :: ACTIVATE
 :: ===============================
 :ACTIVATE
@@ -111,8 +126,8 @@ echo.
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 
-echo   Detected OS  : %PRODUCT%
-echo   Edition     : %EDITION%
+call :print "Detected OS" "%PRODUCT%"
+call :print "Edition" "%EDITION%"
 echo.
 
 set KEY=
