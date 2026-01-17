@@ -5,58 +5,8 @@ title Windows Activation (KMS)
 :: ===============================
 :: KMS CONFIG
 :: ===============================
-set KMS_HOST=KMS_DIGIBOY.IR
+set KMS_HOST=KMS.your-server.com
 set KMS_PORT=1688
-
-:: ===============================
-:: COLORS
-:: ===============================
-set COL_OK=0A
-set COL_ERR=0C
-set COL_INFO=0B
-set COL_WARN=0E
-set COL_DEF=07
-
-:: ===============================
-:: UI FUNCTIONS
-:: ===============================
-:line
-echo ------------------------------------------------------------
-exit /b
-
-:title
-color 0A
-call :line
-echo   %~1
-call :line
-color %COL_DEF%
-exit /b
-
-:row
-:: %1 = label | %2 = value | %3 = state
-set "LABEL=%~1"
-set "VALUE=%~2"
-set "STATE=%~3"
-set "PAD=........................................"
-set "OUT=%LABEL%%PAD%"
-set "OUT=%OUT:~0,36%"
-
-if "%STATE%"=="OK" color %COL_OK%
-if "%STATE%"=="FAIL" color %COL_ERR%
-if "%STATE%"=="INFO" color %COL_INFO%
-
-echo %OUT%: %VALUE% [%STATE%]
-color %COL_DEF%
-exit /b
-
-:loading
-<nul set /p =%~1
-for %%A in (1 2 3) do (
-    <nul set /p =.
-    timeout /t 1 >nul
-)
-echo.
-exit /b
 
 :: ===============================
 :: KMS CLIENT KEYS (GVLK)
@@ -77,15 +27,23 @@ set WS2016_STD=WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY
 set WS2016_ESS=JCKRF-N37P4-C2D82-9YXRT-4M63B
 
 :: Windows Server 2012 R2
-set WS2012R2_DC=W3GGN-FT8W3-Y4M27-J84CP-Q3VJ9
 set WS2012R2_STD=D2N9P-3P6X9-2R39C-7RTCD-MDVJX
+set WS2012R2_DC=W3GGN-FT8W3-Y4M27-J84CP-Q3VJ9
 set WS2012R2_ESS=KNC87-3J2TX-XB4WP-VCPJV-M4FWM
 
 :: Windows 10
 set W10_PRO=W269N-WFGWX-YVC9B-4J6C9-T83GX
 set W10_PRON=MH37W-N47XK-V7XM9-C7227-GCQG9
+set W10_PROWS=NRG8B-VKK3Q-CXVCJ-9G2XF-6Q84J
+set W10_PROWSN=9FNHH-K3HBT-3W4TD-6383H-6XYWF
+set W10_PROEDU=6TP4R-GNPTD-KYYHQ-7B7DP-J447Y
+set W10_PROEDUN=YVWGF-BXNMC-HTQYQ-CPQ99-66QFC
+set W10_EDU=NW6C2-QMPVW-D7KKK-3GKT6-VCFB2
+set W10_EDUN=2WH4N-8QGBV-H22JP-CT43Q-MDWWJ
 set W10_ENT=NPPR9-FWDCX-D2C8J-H872K-2YT43
 set W10_ENTN=DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4
+set W10_ENTG=YYVX9-NTFWV-6MDM3-9PT4T-4M68B
+set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
 
 :: ===============================
 :: MENU
@@ -93,12 +51,15 @@ set W10_ENTN=DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4
 :MENU
 cls
 color 0A
-call :title "WINDOWS ACTIVATION (KMS)"
+echo ============================================================
+echo               WINDOWS ACTIVATION (KMS)
+echo ============================================================
 echo.
-echo   1. Check OS & activation status
-echo   2. Activate Windows
+echo   1. Check OS and activation status
+echo   2. Activate Windows (KMS)
 echo   3. Exit
 echo.
+echo ------------------------------------------------------------
 set /p CHOICE=   Choose an option: 
 
 if "%CHOICE%"=="1" goto CHECK
@@ -111,25 +72,28 @@ goto MENU
 :: ===============================
 :CHECK
 cls
-call :title "SYSTEM INFORMATION"
+color 0B
+echo ============================================================
+echo                 SYSTEM INFORMATION
+echo ============================================================
+echo.
 
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 
-call :row "Operating System" "%PRODUCT%" INFO
-call :row "Edition" "%EDITION%" INFO
-call :row "Build" "%BUILD%" INFO
-call :row "Architecture" "%PROCESSOR_ARCHITECTURE%" INFO
-
+echo   Operating System : %PRODUCT%
+echo   Edition          : %EDITION%
+echo   Build            : %BUILD%
+echo   Architecture     : %PROCESSOR_ARCHITECTURE%
 echo.
-call :line
-echo   Activation Status
-call :line
+
+echo   Activation Status:
 cscript //nologo %windir%\system32\slmgr.vbs /xpr
-
 echo.
-echo   Press any key to go back...
+
+color 0E
+echo   Press any key to go back to menu...
 pause >nul
 goto MENU
 
@@ -138,17 +102,36 @@ goto MENU
 :: ===============================
 :ACTIVATE
 cls
-call :title "WINDOWS KMS ACTIVATION"
+color 0F
+echo ============================================================
+echo            WINDOWS KMS ACTIVATION PROCESS
+echo ============================================================
+echo.
 
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 
-call :row "Detected OS" "%PRODUCT%" INFO
-call :row "Edition" "%EDITION%" INFO
+echo   Detected OS  : %PRODUCT%
+echo   Edition     : %EDITION%
 echo.
 
 set KEY=
 
+:: Windows 10
+if "%EDITION%"=="Professional" set KEY=%W10_PRO%
+if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
+if "%EDITION%"=="ProfessionalWorkstation" set KEY=%W10_PROWS%
+if "%EDITION%"=="ProfessionalWorkstationN" set KEY=%W10_PROWSN%
+if "%EDITION%"=="ProfessionalEducation" set KEY=%W10_PROEDU%
+if "%EDITION%"=="ProfessionalEducationN" set KEY=%W10_PROEDUN%
+if "%EDITION%"=="Education" set KEY=%W10_EDU%
+if "%EDITION%"=="EducationN" set KEY=%W10_EDUN%
+if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
+if "%EDITION%"=="EnterpriseN" set KEY=%W10_ENTN%
+if "%EDITION%"=="EnterpriseG" set KEY=%W10_ENTG%
+if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
+
+:: Windows Server
 if "%EDITION%"=="ServerDatacenter" (
     echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_DC%
     echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_DC%
@@ -169,46 +152,41 @@ if "%EDITION%"=="ServerEssentials" (
     echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_ESS%
 )
 
-if "%EDITION%"=="Professional" set KEY=%W10_PRO%
-if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
-if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
-if "%EDITION%"=="EnterpriseN" set KEY=%W10_ENTN%
-
 if "%KEY%"=="" (
-    call :row "Activation" "Unsupported Windows edition" FAIL
+    color 0C
+    echo   Unsupported Windows edition.
     pause
     goto MENU
 )
 
-call :loading "Processing Windows"
+echo   Processing Windows...
+timeout /t 2 >nul
 
 cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
-call :row "KMS Server" "%KMS_HOST%:%KMS_PORT%" OK
-
 cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
-call :row "Installing GVLK" "%KEY%" OK
-
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
-for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-
 echo.
-call :line
-echo   ACTIVATION RESULT
-call :line
+echo ============================================================
+echo                    ACTIVATION RESULT
+echo ============================================================
+echo.
+
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
 echo   %STATUS%
+echo.
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     color 0A
-    echo   Windows is successfully activated.
+    echo   WINDOWS IS SUCCESSFULLY ACTIVATED (KMS)
 ) else (
     color 0C
-    echo   Windows activation failed.
+    echo   WINDOWS ACTIVATION FAILED
 )
 
-color %COL_DEF%
+color 0E
 echo.
-echo   Press any key to go back...
+echo   Press any key to go back to menu...
 pause >nul
 goto MENU
