@@ -5,7 +5,7 @@ title Windows Activation (KMS)
 :: ===============================
 :: KMS CONFIG
 :: ===============================
-set KMS_HOST=kmscuatoi
+set KMS_HOST=KMS.your-server.com
 set KMS_PORT=1688
 
 :: ===============================
@@ -73,23 +73,27 @@ goto MENU
 :CHECK
 cls
 color 0B
+echo ============================================================
+echo                 SYSTEM INFORMATION
+echo ============================================================
+echo.
 
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 
-echo SYSTEM INFORMATION
-echo ------------------------------------------------------------
-echo Operating System..........: %PRODUCT%
-echo Edition...................: %EDITION%
-echo Build.....................: %BUILD%
-echo Architecture..............: %PROCESSOR_ARCHITECTURE%
+echo   Operating System : %PRODUCT%
+echo   Edition          : %EDITION%
+echo   Build            : %BUILD%
+echo   Architecture     : %PROCESSOR_ARCHITECTURE%
 echo.
-echo Activation Status.........:
+
+echo   Activation Status:
 cscript //nologo %windir%\system32\slmgr.vbs /xpr
 echo.
 
 color 0E
+echo   Press any key to go back to menu...
 pause >nul
 goto MENU
 
@@ -99,14 +103,16 @@ goto MENU
 :ACTIVATE
 cls
 color 0F
+echo ============================================================
+echo            WINDOWS KMS ACTIVATION PROCESS
+echo ============================================================
+echo.
 
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 
-echo ACTIVATION PROCESS
-echo ------------------------------------------------------------
-echo Detected OS...............: %PRODUCT%
-echo Edition..................: %EDITION%
+echo   Detected OS  : %PRODUCT%
+echo   Edition     : %EDITION%
 echo.
 
 set KEY=
@@ -148,12 +154,12 @@ if "%EDITION%"=="ServerEssentials" (
 
 if "%KEY%"=="" (
     color 0C
-    echo Unsupported Windows edition.
+    echo   Unsupported Windows edition.
     pause
     goto MENU
 )
 
-echo Processing Windows...
+echo   Processing Windows...
 timeout /t 2 >nul
 
 cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
@@ -161,23 +167,26 @@ cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
 echo.
-echo ACTIVATION RESULT
-echo ------------------------------------------------------------
+echo ============================================================
+echo                    ACTIVATION RESULT
+echo ============================================================
+echo.
 
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-echo Activation Status.........:
 echo   %STATUS%
 echo.
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     color 0A
-    echo Activation Result......: [Successful]
+    echo   WINDOWS IS SUCCESSFULLY ACTIVATED (KMS)
 ) else (
     color 0C
-    echo Activation Result......: [Failed]
+    echo   WINDOWS ACTIVATION FAILED
 )
 
 color 0E
+echo.
+echo   Press any key to go back to menu...
 pause >nul
 goto MENU
