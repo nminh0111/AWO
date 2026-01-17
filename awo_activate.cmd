@@ -46,24 +46,6 @@ set W10_ENTG=YYVX9-NTFWV-6MDM3-9PT4T-4M68B
 set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
 
 :: ===============================
-:: GET ACTIVATION INFO
-:: ===============================
-:GetActivationInfo
-set ACT_STATUS=Unknown
-set ACT_EXPIRE=Unknown
-
-for /f "tokens=2 delims=:" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /dli ^| find "License Status"') do (
-    set ACT_STATUS=%%A
-)
-
-for /f "tokens=5,6 delims= " %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do (
-    set ACT_EXPIRE=%%A %%B
-)
-
-set ACT_STATUS=%ACT_STATUS:~1%
-exit /b
-
-:: ===============================
 :: MENU
 :: ===============================
 :MENU
@@ -93,21 +75,22 @@ cls
 color 0B
 
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
-
-call :GetActivationInfo
 
 echo SYSTEM INFORMATION
 echo ------------------------------------------------------------
 echo Operating System..........: %PRODUCT%
 echo Edition...................: %EDITION%
+echo Build.....................: %BUILD%
+echo Architecture..............: %PROCESSOR_ARCHITECTURE%
 echo.
-echo Activation Status.........: %ACT_STATUS%
-echo Expiration Date...........: %ACT_EXPIRE%
+echo Activation Status.........:
+cscript //nologo %windir%\system32\slmgr.vbs /xpr
 echo.
 
 color 0E
-pause
+pause >nul
 goto MENU
 
 :: ===============================
@@ -177,19 +160,24 @@ cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
-call :GetActivationInfo
-
 echo.
-echo Activation Status.........: [%ACT_STATUS%]
-echo Expiration Date...........: %ACT_EXPIRE%
+echo ACTIVATION RESULT
+echo ------------------------------------------------------------
+
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
+echo Activation Status.........:
+echo   %STATUS%
 echo.
 
-if /I "%ACT_STATUS%"=="Licensed" (
+echo %STATUS% | find "expire" >nul
+if %errorlevel%==0 (
     color 0A
+    echo Activation Result......: [Successful]
 ) else (
     color 0C
+    echo Activation Result......: [Failed]
 )
 
 color 0E
-pause
+pause >nul
 goto MENU
