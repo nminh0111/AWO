@@ -46,6 +46,32 @@ set W10_ENTG=YYVX9-NTFWV-6MDM3-9PT4T-4M68B
 set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
 
 :: ===============================
+:: PRINT WITH FIXED COLUMN
+:: ===============================
+:print
+:: %1 = Label | %2 = Value
+set "LABEL=%~1"
+set "VALUE=%~2"
+set "PAD=................................................"
+
+set "OUT=%LABEL%%PAD%"
+set "OUT=%OUT:~0,26%"
+
+echo   %OUT%: %VALUE%
+exit /b
+
+:: ===============================
+:: TEMP STATUS (SHOW / CLEAR)
+:: ===============================
+:status_tmp
+<nul set /p ="   %~1"
+exit /b
+
+:status_clear
+<nul set /p ="                                   " & echo.
+exit /b
+
+:: ===============================
 :: MENU
 :: ===============================
 :MENU
@@ -82,25 +108,23 @@ for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Curre
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 
-echo   Operating System : %PRODUCT%
-echo   Edition          : %EDITION%
-echo   Build            : %BUILD%
-echo   Architecture     : %PROCESSOR_ARCHITECTURE%
+call :print "Operating System" "%PRODUCT%"
+call :print "Edition" "%EDITION%"
+call :print "Build" "%BUILD%"
+call :print "Architecture" "%PROCESSOR_ARCHITECTURE%"
 echo.
 
-echo.
-call :print "Activation Status" "Checking..."
-
+:: --- Activation status (TEMP -> FINAL)
+call :status_tmp "Activation Status........: Checking..."
 set EXPIRE=
 for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set EXPIRE=%%A
+timeout /t 1 >nul
+call :status_clear
 
 if defined EXPIRE (
     color 0A
     call :print "Activation Status" "Licensed"
     call :print "License Type" "Volume (KMS)"
-
-    :: Tách ngày giờ cho gọn
-    for %%B in (%EXPIRE%) do set LAST=%%B
     call :print "Expiration Date" "%EXPIRE:~32%"
 ) else (
     color 0C
@@ -110,26 +134,9 @@ if defined EXPIRE (
 
 color 0E
 echo.
-
-color 0E
 echo   Press any key to go back to menu...
 pause >nul
 goto MENU
-
-:: ===============================
-:: PRINT WITH FIXED COLUMN
-:: ===============================
-:print
-:: %1 = Label | %2 = Value
-set "LABEL=%~1"
-set "VALUE=%~2"
-set "PAD=................................................"
-
-set "OUT=%LABEL%%PAD%"
-set "OUT=%OUT:~0,32%"
-
-echo   %OUT%: %VALUE%
-exit /b
 
 :: ===============================
 :: ACTIVATE
@@ -149,53 +156,152 @@ call :print "Detected OS" "%PRODUCT%"
 call :print "Edition" "%EDITION%"
 echo.
 
-set KEY=
-
-:: Windows 10
-if "%EDITION%"=="Professional" set KEY=%W10_PRO%
-if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
-if "%EDITION%"=="ProfessionalWorkstation" set KEY=%W10_PROWS%
-if "%EDITION%"=="ProfessionalWorkstationN" set KEY=%W10_PROWSN%
-if "%EDITION%"=="ProfessionalEducation" set KEY=%W10_PROEDU%
-if "%EDITION%"=="ProfessionalEducationN" set KEY=%W10_PROEDUN%
-if "%EDITION%"=="Education" set KEY=%W10_EDU%
-if "%EDITION%"=="EducationN" set KEY=%W10_EDUN%
-if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
-if "%EDITION%"=="EnterpriseN" set KEY=%W10_ENTN%
-if "%EDITION%"=="EnterpriseG" set KEY=%W10_ENTG%
-if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
-
-:: Windows Server
-if "%EDITION%"=="ServerDatacenter" (
-    echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_DC%
-    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_DC%
-    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_DC%
-    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_DC%
-)
-
-if "%EDITION%"=="ServerStandard" (
-    echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_STD%
-    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_STD%
-    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_STD%
-    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_STD%
-)
-
-if "%EDITION%"=="ServerEssentials" (
-    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_ESS%
-    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_ESS%
-    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_ESS%
-)
-
-if "%KEY%"=="" (
-    color 0C
-    echo   Unsupported Windows edition.
-    pause
-    goto MENU
-)
-
-echo   Processing Windows...
+:: --- Processing (TEMP)
+call :status_tmp "Processing Windows..."
 timeout /t 2 >nul
+call :status_clear
 
+:: --- Activate (GIỮ NGUYÊN LOGIC)
+cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
+cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
+cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
+
+
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
+
+echo %STATUS% | find "expire" >nul
+if %errorlevel%==0 (
+    color 0A
+    call :print "Activation Status" "[Successful]"
+    call :print "Expiration Date" "%STATUS:~32%"
+) else (
+    color 0C
+    call :print "Activation Status" "[Failed]"
+    call :print "License State" "[Notification Mode]"
+)
+
+color 0E
+echo.
+echo   Press any key to go back to menu...
+pause >nul
+goto MENU
+:: ===============================
+:: PRINT WITH FIXED COLUMN
+:: ===============================
+:print
+:: %1 = Label | %2 = Value
+set "LABEL=%~1"
+set "VALUE=%~2"
+set "PAD=................................................"
+
+set "OUT=%LABEL%%PAD%"
+set "OUT=%OUT:~0,26%"
+
+echo   %OUT%: %VALUE%
+exit /b
+
+:: ===============================
+:: TEMP STATUS (SHOW / CLEAR)
+:: ===============================
+:status_tmp
+<nul set /p ="   %~1"
+exit /b
+
+:status_clear
+<nul set /p ="                                   " & echo.
+exit /b
+
+:: ===============================
+:: MENU
+:: ===============================
+:MENU
+cls
+color 0A
+echo ============================================================
+echo               WINDOWS ACTIVATION (KMS)
+echo ============================================================
+echo.
+echo   1. Check OS and activation status
+echo   2. Activate Windows (KMS)
+echo   3. Exit
+echo.
+echo ------------------------------------------------------------
+set /p CHOICE=   Choose an option: 
+
+if "%CHOICE%"=="1" goto CHECK
+if "%CHOICE%"=="2" goto ACTIVATE
+if "%CHOICE%"=="3" exit /b
+goto MENU
+
+:: ===============================
+:: CHECK STATUS
+:: ===============================
+:CHECK
+cls
+color 0B
+echo ============================================================
+echo                 SYSTEM INFORMATION
+echo ============================================================
+echo.
+
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+
+call :print "Operating System" "%PRODUCT%"
+call :print "Edition" "%EDITION%"
+call :print "Build" "%BUILD%"
+call :print "Architecture" "%PROCESSOR_ARCHITECTURE%"
+echo.
+
+:: --- Activation status (TEMP -> FINAL)
+call :status_tmp "Activation Status........: Checking..."
+set EXPIRE=
+for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set EXPIRE=%%A
+timeout /t 1 >nul
+call :status_clear
+
+if defined EXPIRE (
+    color 0A
+    call :print "Activation Status" "Licensed"
+    call :print "License Type" "Volume (KMS)"
+    call :print "Expiration Date" "%EXPIRE:~32%"
+) else (
+    color 0C
+    call :print "Activation Status" "Not Activated"
+    call :print "License State" "Notification Mode"
+)
+
+color 0E
+echo.
+echo   Press any key to go back to menu...
+pause >nul
+goto MENU
+
+:: ===============================
+:: ACTIVATE
+:: ===============================
+:ACTIVATE
+cls
+color 0F
+echo ============================================================
+echo            WINDOWS KMS ACTIVATION PROCESS
+echo ============================================================
+echo.
+
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+
+call :print "Detected OS" "%PRODUCT%"
+call :print "Edition" "%EDITION%"
+echo.
+
+:: --- Processing (TEMP)
+call :status_tmp "Processing Windows..."
+timeout /t 2 >nul
+call :status_clear
+
+:: --- Activate (GIỮ NGUYÊN LOGIC)
 cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
@@ -206,23 +312,22 @@ echo                     ACTIVATION RESULT
 echo ============================================================
 echo.
 
-set PAD=....................................................
-
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     color 0A
-    echo   Activation Status%PAD:~0,26%: [Successful]
-    echo   License Validity%PAD:~0,27%: [180 Days]
+    call :print "Activation Status" "[Successful]"
+    call :print "License Validity" "[180 Days]"
 ) else (
     color 0C
-    echo   Activation Status%PAD:~0,26%: [Failed]
-    echo   License State%PAD:~0,29%: [Notification Mode]
+    call :print "Activation Status" "[Failed]"
+    call :print "License State" "[Notification Mode]"
 )
-color 0E
 
+color 0E
 echo.
 echo   Press any key to go back to menu...
 pause >nul
 goto MENU
+
