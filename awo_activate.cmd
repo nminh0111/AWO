@@ -5,7 +5,7 @@ title Windows Activation (KMS)
 :: ===============================
 :: KMS CONFIG
 :: ===============================
-set KMS_HOST=kmsservercuatoi
+set KMS_HOST=KMS.DIGIBOY.IR
 set KMS_PORT=1688
 
 :: ===============================
