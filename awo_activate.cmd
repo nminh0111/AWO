@@ -1,6 +1,8 @@
 @echo off
 setlocal EnableDelayedExpansion
 title Windows Activation (KMS)
+=
+goto MENU
 
 :: ===============================
 :: KMS CONFIG
@@ -104,14 +106,12 @@ call :print "Operating System" "%PRODUCT%"
 call :print "Edition" "%EDITION%"
 echo.
 
-:: ---- TEMP CHECKING (WILL DISAPPEAR)
 call :status_tmp "Checking activation status..."
 set EXPIRE=
 for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set EXPIRE=%%A
 timeout /t 1 >nul
 call :status_clear
 
-:: ---- FINAL OUTPUT
 if defined EXPIRE (
     color 0A
     call :print "Activation Status" "Licensed"
@@ -121,7 +121,6 @@ if defined EXPIRE (
     call :print "Activation Status" "Not Activated"
 )
 
-echo.
 pause
 goto MENU
 
@@ -136,7 +135,6 @@ echo            WINDOWS KMS ACTIVATION PROCESS
 echo ============================================================
 echo.
 
-:: Detect OS
 for /f "tokens=2,*" %%A in ('reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 for /f "tokens=2,*" %%A in ('reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v EditionID ^| find "EditionID"') do set EDITION=%%B
 
@@ -144,7 +142,6 @@ call :print "Detected OS" "%PRODUCT%"
 call :print "Edition" "%EDITION%"
 echo.
 
-:: Select KEY (ví dụ cơ bản – bạn có thể mở rộng)
 set KEY=
 if "%EDITION%"=="ServerDatacenter" set KEY=%WS2019_DC%
 if "%EDITION%"=="ServerStandard" set KEY=%WS2019_STD%
@@ -158,17 +155,14 @@ if "%KEY%"=="" (
     goto MENU
 )
 
-:: ---- TEMP PROCESSING (WILL DISAPPEAR)
 call :status_tmp "Processing Windows activation..."
 timeout /t 2 >nul
 call :status_clear
 
-:: ---- ACTIVATE
 cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
-:: ---- RESULT
 set STATUS=
 for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set STATUS=%%A
 
@@ -182,6 +176,5 @@ if defined STATUS (
     call :print "Activation Status" "[Failed]"
 )
 
-echo.
 pause
 goto MENU
