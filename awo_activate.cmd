@@ -82,20 +82,20 @@ for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Curre
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 
-echo   Operating System : %PRODUCT%
-echo   Edition          : %EDITION%
-echo   Build            : %BUILD%
-echo   Architecture     : %PROCESSOR_ARCHITECTURE%
+echo   Operating System      : %PRODUCT%
+echo   Edition               : %EDITION%
+echo   Build                 : %BUILD%
+echo   Architecture          : %PROCESSOR_ARCHITECTURE%
 echo.
 
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
-    echo Activation Status       : Licensed
-    echo Expiration              : %STATUS%
+    echo   Activation Status     : Licensed
+    echo   Expiration            : %STATUS%
 ) else (
-    echo Activation Status       : Notification Mode
+    echo   Activation Status     : Notification Mode
 )
 echo.
 
@@ -103,6 +103,7 @@ color 0E
 echo   Press any key to go back to menu...
 pause >nul
 goto MENU
+
 
 :: ===============================
 :: ACTIVATE
