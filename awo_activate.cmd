@@ -88,8 +88,15 @@ echo   Build            : %BUILD%
 echo   Architecture     : %PROCESSOR_ARCHITECTURE%
 echo.
 
-echo   Activation Status:
-cscript //nologo %windir%\system32\slmgr.vbs /xpr
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
+
+echo %STATUS% | find "expire" >nul
+if %errorlevel%==0 (
+    echo Activation Status       : Licensed
+    echo Expiration              : %STATUS%
+) else (
+    echo Activation Status       : Notification Mode
+)
 echo.
 
 color 0E
