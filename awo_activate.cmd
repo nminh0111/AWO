@@ -88,8 +88,27 @@ echo   Build            : %BUILD%
 echo   Architecture     : %PROCESSOR_ARCHITECTURE%
 echo.
 
-echo   Activation Status:
-cscript //nologo %windir%\system32\slmgr.vbs /xpr
+echo.
+call :print "Activation Status" "Checking..."
+
+set EXPIRE=
+for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set EXPIRE=%%A
+
+if defined EXPIRE (
+    color 0A
+    call :print "Activation Status" "Licensed"
+    call :print "License Type" "Volume (KMS)"
+
+    :: Tách ngày giờ cho gọn
+    for %%B in (%EXPIRE%) do set LAST=%%B
+    call :print "Expiration Date" "%EXPIRE:~32%"
+) else (
+    color 0C
+    call :print "Activation Status" "Not Activated"
+    call :print "License State" "Notification Mode"
+)
+
+color 0E
 echo.
 
 color 0E
