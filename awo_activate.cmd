@@ -5,7 +5,7 @@ title Windows Activation (KMS)
 :: ===============================
 :: KMS CONFIG
 :: ===============================
-set KMS_HOST=KMS.your-server.com
+set KMS_HOST=KMS.DIGIBOY.IR
 set KMS_PORT=1688
 
 :: ===============================
@@ -168,24 +168,26 @@ cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
 echo.
 echo ============================================================
-echo                    ACTIVATION RESULT
+echo                     ACTIVATION RESULT
 echo ============================================================
 echo.
 
+set PAD=....................................................
+
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-echo   %STATUS%
-echo.
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     color 0A
-    echo   WINDOWS IS SUCCESSFULLY ACTIVATED (KMS)
+    echo   Activation Status%PAD:~0,26%: [Successful]
+    echo   License Validity%PAD:~0,27%: [180 Days]
 ) else (
     color 0C
-    echo   WINDOWS ACTIVATION FAILED
+    echo   Activation Status%PAD:~0,26%: [Failed]
+    echo   License State%PAD:~0,29%: [Notification Mode]
 )
-
 color 0E
+
 echo.
 echo   Press any key to go back to menu...
 pause >nul
