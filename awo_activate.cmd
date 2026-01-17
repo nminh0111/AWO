@@ -78,13 +78,17 @@ echo                 SYSTEM INFORMATION
 echo ============================================================
 echo.
 
-echo   Operating System........: %PRODUCT%
-echo   Edition.................: %EDITION%
-echo   Build...................: %BUILD%
-echo   Architecture............: %PROCESSOR_ARCHITECTURE%
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+
+echo   Operating System : %PRODUCT%
+echo   Edition          : %EDITION%
+echo   Build            : %BUILD%
+echo   Architecture     : %PROCESSOR_ARCHITECTURE%
 echo.
-echo   Activation Status
-echo   ----------------------------------------------------------
+
+echo   Activation Status:
 cscript //nologo %windir%\system32\slmgr.vbs /xpr
 echo.
 
@@ -104,8 +108,11 @@ echo            WINDOWS KMS ACTIVATION PROCESS
 echo ============================================================
 echo.
 
-echo   Detected OS.............: %PRODUCT%
-echo   Edition.................: %EDITION%
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+
+echo   Detected OS  : %PRODUCT%
+echo   Edition     : %EDITION%
 echo.
 
 set KEY=
@@ -166,17 +173,16 @@ echo ============================================================
 echo.
 
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-
-echo   Activation Status.......: %STATUS%
+echo   %STATUS%
 echo.
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     color 0A
-    echo   Result................: SUCCESS
+    echo   WINDOWS IS SUCCESSFULLY ACTIVATED (KMS)
 ) else (
     color 0C
-    echo   Result................: FAILED
+    echo   WINDOWS ACTIVATION FAILED
 )
 
 color 0E
