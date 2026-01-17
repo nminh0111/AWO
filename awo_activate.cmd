@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 title Windows Activation (KMS)
-=
+
 goto MENU
 
 :: ===============================
