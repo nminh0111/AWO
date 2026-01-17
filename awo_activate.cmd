@@ -111,8 +111,27 @@ echo.
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 
-echo   Detected OS  : %PRODUCT%
-echo   Edition     : %EDITION%
+:: ===============================
+:: PRINT WITH FIXED COLUMN
+:: ===============================
+:print
+:: %1 = Label | %2 = Value
+set "LABEL=%~1"
+set "VALUE=%~2"
+set "PAD=................................................"
+
+set "OUT=%LABEL%%PAD%"
+set "OUT=%OUT:~0,32%"
+
+echo   %OUT%: %VALUE%
+exit /b
+
+
+set L1=Detected OS
+set L2=Edition
+
+echo   %L1%%LABEL_PAD:~0,22%: %PRODUCT%
+echo   %L2%%LABEL_PAD:~0,22%: %EDITION%
 echo.
 
 set KEY=
