@@ -89,6 +89,7 @@ echo   Architecture          : %PROCESSOR_ARCHITECTURE%
 echo.
 
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
+set STATUS=%STATUS:~1%
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
@@ -183,7 +184,7 @@ echo ============================================================
 echo.
 
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-
+set STATUS=%STATUS:~1%
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     color 0A
