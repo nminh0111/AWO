@@ -5,7 +5,7 @@ title Windows Activation (KMS)
 :: ===============================
 :: KMS CONFIG
 :: ===============================
-set KMS_HOST=KMS.DIGIBOY.IR
+set KMS_HOST=kmsservercuatoi
 set KMS_PORT=1688
 
 :: ===============================
@@ -45,23 +45,19 @@ set W10_ENTN=DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4
 set W10_ENTG=YYVX9-NTFWV-6MDM3-9PT4T-4M68B
 set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
 
+
 :: ===============================
-:: PRINT WITH FIXED COLUMN
+:: PRINT FUNCTION
 :: ===============================
 :print
-:: %1 = Label | %2 = Value
-set "LABEL=%~1"
-set "VALUE=%~2"
 set "PAD=................................................"
-
-set "OUT=%LABEL%%PAD%"
+set "OUT=%~1%PAD%"
 set "OUT=%OUT:~0,26%"
-
-echo   %OUT%: %VALUE%
+echo   %OUT%: %~2
 exit /b
 
 :: ===============================
-:: TEMP STATUS (SHOW / CLEAR)
+:: TEMP STATUS
 :: ===============================
 :status_tmp
 <nul set /p ="   %~1"
@@ -85,13 +81,11 @@ echo   1. Check OS and activation status
 echo   2. Activate Windows (KMS)
 echo   3. Exit
 echo.
-echo ------------------------------------------------------------
 set /p CHOICE=   Choose an option: 
 
 if "%CHOICE%"=="1" goto CHECK
 if "%CHOICE%"=="2" goto ACTIVATE
-if "%CHOICE%"=="3" exit /b
-goto MENU
+exit /b
 
 :: ===============================
 :: CHECK STATUS
@@ -104,19 +98,14 @@ echo                 SYSTEM INFORMATION
 echo ============================================================
 echo.
 
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+for /f "tokens=2,*" %%A in ('reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+for /f "tokens=2,*" %%A in ('reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v EditionID ^| find "EditionID"') do set EDITION=%%B
 
 call :print "Operating System" "%PRODUCT%"
 call :print "Edition" "%EDITION%"
-call :print "Build" "%BUILD%"
-call :print "Architecture" "%PROCESSOR_ARCHITECTURE%"
 echo.
 
-:: --- Activation status (TEMP -> FINAL)
 call :status_tmp "Activation Status........: Checking..."
-set EXPIRE=
 for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set EXPIRE=%%A
 timeout /t 1 >nul
 call :status_clear
@@ -124,18 +113,13 @@ call :status_clear
 if defined EXPIRE (
     color 0A
     call :print "Activation Status" "Licensed"
-    call :print "License Type" "Volume (KMS)"
     call :print "Expiration Date" "%EXPIRE:~32%"
 ) else (
     color 0C
     call :print "Activation Status" "Not Activated"
-    call :print "License State" "Notification Mode"
 )
 
-color 0E
-echo.
-echo   Press any key to go back to menu...
-pause >nul
+pause
 goto MENU
 
 :: ===============================
@@ -149,185 +133,38 @@ echo            WINDOWS KMS ACTIVATION PROCESS
 echo ============================================================
 echo.
 
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+set KEY=
+if "%EDITION%"=="ServerDatacenter" set KEY=%WS2019_DC%
+if "%EDITION%"=="ServerStandard" set KEY=%WS2019_STD%
+if "%EDITION%"=="Professional" set KEY=%W10_PRO%
+if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
 
-call :print "Detected OS" "%PRODUCT%"
-call :print "Edition" "%EDITION%"
-echo.
+if "%KEY%"=="" (
+    echo Unsupported Windows edition
+    pause
+    goto MENU
+)
 
-:: --- Processing (TEMP)
 call :status_tmp "Processing Windows..."
 timeout /t 2 >nul
 call :status_clear
 
-:: --- Activate (GIỮ NGUYÊN LOGIC)
 cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
+for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set STATUS=%%A
 
-for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-
-echo %STATUS% | find "expire" >nul
-if %errorlevel%==0 (
+echo.
+if defined STATUS (
     color 0A
     call :print "Activation Status" "[Successful]"
     call :print "Expiration Date" "%STATUS:~32%"
 ) else (
     color 0C
     call :print "Activation Status" "[Failed]"
-    call :print "License State" "[Notification Mode]"
 )
 
-color 0E
-echo.
-echo   Press any key to go back to menu...
-pause >nul
-goto MENU
-:: ===============================
-:: PRINT WITH FIXED COLUMN
-:: ===============================
-:print
-:: %1 = Label | %2 = Value
-set "LABEL=%~1"
-set "VALUE=%~2"
-set "PAD=................................................"
-
-set "OUT=%LABEL%%PAD%"
-set "OUT=%OUT:~0,26%"
-
-echo   %OUT%: %VALUE%
-exit /b
-
-:: ===============================
-:: TEMP STATUS (SHOW / CLEAR)
-:: ===============================
-:status_tmp
-<nul set /p ="   %~1"
-exit /b
-
-:status_clear
-<nul set /p ="                                   " & echo.
-exit /b
-
-:: ===============================
-:: MENU
-:: ===============================
-:MENU
-cls
-color 0A
-echo ============================================================
-echo               WINDOWS ACTIVATION (KMS)
-echo ============================================================
-echo.
-echo   1. Check OS and activation status
-echo   2. Activate Windows (KMS)
-echo   3. Exit
-echo.
-echo ------------------------------------------------------------
-set /p CHOICE=   Choose an option: 
-
-if "%CHOICE%"=="1" goto CHECK
-if "%CHOICE%"=="2" goto ACTIVATE
-if "%CHOICE%"=="3" exit /b
-goto MENU
-
-:: ===============================
-:: CHECK STATUS
-:: ===============================
-:CHECK
-cls
-color 0B
-echo ============================================================
-echo                 SYSTEM INFORMATION
-echo ============================================================
-echo.
-
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
-
-call :print "Operating System" "%PRODUCT%"
-call :print "Edition" "%EDITION%"
-call :print "Build" "%BUILD%"
-call :print "Architecture" "%PROCESSOR_ARCHITECTURE%"
-echo.
-
-:: --- Activation status (TEMP -> FINAL)
-call :status_tmp "Activation Status........: Checking..."
-set EXPIRE=
-for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set EXPIRE=%%A
-timeout /t 1 >nul
-call :status_clear
-
-if defined EXPIRE (
-    color 0A
-    call :print "Activation Status" "Licensed"
-    call :print "License Type" "Volume (KMS)"
-    call :print "Expiration Date" "%EXPIRE:~32%"
-) else (
-    color 0C
-    call :print "Activation Status" "Not Activated"
-    call :print "License State" "Notification Mode"
-)
-
-color 0E
-echo.
-echo   Press any key to go back to menu...
-pause >nul
-goto MENU
-
-:: ===============================
-:: ACTIVATE
-:: ===============================
-:ACTIVATE
-cls
-color 0F
-echo ============================================================
-echo            WINDOWS KMS ACTIVATION PROCESS
-echo ============================================================
-echo.
-
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
-
-call :print "Detected OS" "%PRODUCT%"
-call :print "Edition" "%EDITION%"
-echo.
-
-:: --- Processing (TEMP)
-call :status_tmp "Processing Windows..."
-timeout /t 2 >nul
-call :status_clear
-
-:: --- Activate (GIỮ NGUYÊN LOGIC)
-cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
-cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
-cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
-
-echo.
-echo ============================================================
-echo                     ACTIVATION RESULT
-echo ============================================================
-echo.
-
-for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-
-echo %STATUS% | find "expire" >nul
-if %errorlevel%==0 (
-    color 0A
-    call :print "Activation Status" "[Successful]"
-    call :print "License Validity" "[180 Days]"
-) else (
-    color 0C
-    call :print "Activation Status" "[Failed]"
-    call :print "License State" "[Notification Mode]"
-)
-
-color 0E
-echo.
-echo   Press any key to go back to menu...
-pause >nul
+pause
 goto MENU
 
