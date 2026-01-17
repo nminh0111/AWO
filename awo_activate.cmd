@@ -5,7 +5,7 @@ title Windows Activation (KMS)
 :: ===============================
 :: KMS CONFIG
 :: ===============================
-set KMS_HOST=KMS.DIGIBOY.IR
+set KMS_HOST=kms.digiboy.ir
 set KMS_PORT=1688
 
 :: ===============================
@@ -27,45 +27,15 @@ set WS2016_STD=WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY
 set WS2016_ESS=JCKRF-N37P4-C2D82-9YXRT-4M63B
 
 :: Windows Server 2012 R2
-set WS2012R2_STD=D2N9P-3P6X9-2R39C-7RTCD-MDVJX
 set WS2012R2_DC=W3GGN-FT8W3-Y4M27-J84CP-Q3VJ9
+set WS2012R2_STD=D2N9P-3P6X9-2R39C-7RTCD-MDVJX
 set WS2012R2_ESS=KNC87-3J2TX-XB4WP-VCPJV-M4FWM
 
 :: Windows 10
 set W10_PRO=W269N-WFGWX-YVC9B-4J6C9-T83GX
 set W10_PRON=MH37W-N47XK-V7XM9-C7227-GCQG9
-set W10_PROWS=NRG8B-VKK3Q-CXVCJ-9G2XF-6Q84J
-set W10_PROWSN=9FNHH-K3HBT-3W4TD-6383H-6XYWF
-set W10_PROEDU=6TP4R-GNPTD-KYYHQ-7B7DP-J447Y
-set W10_PROEDUN=YVWGF-BXNMC-HTQYQ-CPQ99-66QFC
-set W10_EDU=NW6C2-QMPVW-D7KKK-3GKT6-VCFB2
-set W10_EDUN=2WH4N-8QGBV-H22JP-CT43Q-MDWWJ
 set W10_ENT=NPPR9-FWDCX-D2C8J-H872K-2YT43
 set W10_ENTN=DPH2V-TTNVB-4X9Q3-TJR4H-KHJW4
-set W10_ENTG=YYVX9-NTFWV-6MDM3-9PT4T-4M68B
-set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
-
-
-:: ===============================
-:: PRINT FUNCTION
-:: ===============================
-:print
-set "PAD=................................................"
-set "OUT=%~1%PAD%"
-set "OUT=%OUT:~0,26%"
-echo   %OUT%: %~2
-exit /b
-
-:: ===============================
-:: TEMP STATUS
-:: ===============================
-:status_tmp
-<nul set /p ="   %~1"
-exit /b
-
-:status_clear
-<nul set /p ="                                   " & echo.
-exit /b
 
 :: ===============================
 :: MENU
@@ -81,11 +51,13 @@ echo   1. Check OS and activation status
 echo   2. Activate Windows (KMS)
 echo   3. Exit
 echo.
+echo ------------------------------------------------------------
 set /p CHOICE=   Choose an option: 
 
 if "%CHOICE%"=="1" goto CHECK
 if "%CHOICE%"=="2" goto ACTIVATE
-exit /b
+if "%CHOICE%"=="3" exit /b
+goto MENU
 
 :: ===============================
 :: CHECK STATUS
@@ -98,27 +70,19 @@ echo                 SYSTEM INFORMATION
 echo ============================================================
 echo.
 
-for /f "tokens=2,*" %%A in ('reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
-for /f "tokens=2,*" %%A in ('reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v EditionID ^| find "EditionID"') do set EDITION=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
 
-call :print "Operating System" "%PRODUCT%"
-call :print "Edition" "%EDITION%"
+echo   Operating System : %PRODUCT%
+echo   Edition          : %EDITION%
+echo   Build            : %BUILD%
+echo   Architecture     : %PROCESSOR_ARCHITECTURE%
 echo.
+echo   Activation Status:
+cscript //nologo %windir%\system32\slmgr.vbs /xpr
 
-call :status_tmp "Activation Status........: Checking..."
-for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set EXPIRE=%%A
-timeout /t 1 >nul
-call :status_clear
-
-if defined EXPIRE (
-    color 0A
-    call :print "Activation Status" "Licensed"
-    call :print "Expiration Date" "%EXPIRE:~32%"
-) else (
-    color 0C
-    call :print "Activation Status" "Not Activated"
-)
-
+echo.
 pause
 goto MENU
 
@@ -133,38 +97,53 @@ echo            WINDOWS KMS ACTIVATION PROCESS
 echo ============================================================
 echo.
 
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+
+echo   Detected OS : %PRODUCT%
+echo   Edition     : %EDITION%
+echo.
+
 set KEY=
-if "%EDITION%"=="ServerDatacenter" set KEY=%WS2019_DC%
-if "%EDITION%"=="ServerStandard" set KEY=%WS2019_STD%
+
+:: Windows 10
 if "%EDITION%"=="Professional" set KEY=%W10_PRO%
+if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
 if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
+if "%EDITION%"=="EnterpriseN" set KEY=%W10_ENTN%
+
+:: Windows Server
+if "%EDITION%"=="ServerDatacenter" (
+    echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_DC%
+    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_DC%
+    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_DC%
+    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_DC%
+)
+
+if "%EDITION%"=="ServerStandard" (
+    echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_STD%
+    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_STD%
+    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_STD%
+    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_STD%
+)
 
 if "%KEY%"=="" (
-    echo Unsupported Windows edition
+    echo   Unsupported Windows edition.
     pause
     goto MENU
 )
 
-call :status_tmp "Processing Windows..."
+echo   Processing Windows...
 timeout /t 2 >nul
-call :status_clear
 
-cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
-cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
-cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
-
-for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set STATUS=%%A
+cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT%
+cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY%
+cscript //nologo %windir%\system32\slmgr.vbs /ato
 
 echo.
-if defined STATUS (
-    color 0A
-    call :print "Activation Status" "[Successful]"
-    call :print "Expiration Date" "%STATUS:~32%"
-) else (
-    color 0C
-    call :print "Activation Status" "[Failed]"
-)
+echo   Activation Result:
+cscript //nologo %windir%\system32\slmgr.vbs /xpr
 
+echo.
 pause
 goto MENU
-
