@@ -111,21 +111,9 @@ echo.
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
 
-:: ===============================
-:: PRINT WITH FIXED COLUMN
-:: ===============================
-:print
-:: %1 = Label | %2 = Value
-set "LABEL=%~1"
-set "VALUE=%~2"
-set "PAD=................................................"
 
-set "OUT=%LABEL%%PAD%"
-set "OUT=%OUT:~0,32%"
 
-echo   %OUT%: %VALUE%
-exit /b
-
+set LABEL_PAD=..........................
 
 set L1=Detected OS
 set L2=Edition
@@ -187,22 +175,26 @@ cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
 echo.
 echo ============================================================
-echo                    ACTIVATION RESULT
+echo                     ACTIVATION RESULT
 echo ============================================================
 echo.
 
+set PAD=....................................................
+
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set STATUS=%%S
-echo   %STATUS%
-echo.
 
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     color 0A
-    echo   WINDOWS IS SUCCESSFULLY ACTIVATED (KMS)
+    echo   Activation Status%PAD:~0,26%: [Successful]
+    echo   License Validity%PAD:~0,27%: [180 Days]
 ) else (
     color 0C
-    echo   WINDOWS ACTIVATION FAILED
+    echo   Activation Status%PAD:~0,26%: [Failed]
+    echo   License State%PAD:~0,29%: [Notification Mode]
 )
+
+color 0E
 
 color 0E
 echo.
