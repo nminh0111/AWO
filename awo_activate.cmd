@@ -46,7 +46,7 @@ set W10_ENTG=YYVX9-NTFWV-6MDM3-9PT4T-4M68B
 set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
 
 :: ===============================
-:: PRINT FUNCTION
+:: PRINT FUNCTION (FIXED COLUMN)
 :: ===============================
 :print
 set "PAD=................................................"
@@ -56,7 +56,7 @@ echo   %OUT%: %~2
 exit /b
 
 :: ===============================
-:: TEMP STATUS
+:: TEMP STATUS (SHOW / CLEAR)
 :: ===============================
 :status_tmp
 <nul set /p ="   %~1"
@@ -104,11 +104,14 @@ call :print "Operating System" "%PRODUCT%"
 call :print "Edition" "%EDITION%"
 echo.
 
-call :status_tmp "Activation Status........: Checking..."
+:: ---- TEMP CHECKING (WILL DISAPPEAR)
+call :status_tmp "Checking activation status..."
+set EXPIRE=
 for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set EXPIRE=%%A
 timeout /t 1 >nul
 call :status_clear
 
+:: ---- FINAL OUTPUT
 if defined EXPIRE (
     color 0A
     call :print "Activation Status" "Licensed"
@@ -118,6 +121,7 @@ if defined EXPIRE (
     call :print "Activation Status" "Not Activated"
 )
 
+echo.
 pause
 goto MENU
 
@@ -132,6 +136,15 @@ echo            WINDOWS KMS ACTIVATION PROCESS
 echo ============================================================
 echo.
 
+:: Detect OS
+for /f "tokens=2,*" %%A in ('reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+for /f "tokens=2,*" %%A in ('reg query HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion /v EditionID ^| find "EditionID"') do set EDITION=%%B
+
+call :print "Detected OS" "%PRODUCT%"
+call :print "Edition" "%EDITION%"
+echo.
+
+:: Select KEY (ví dụ cơ bản – bạn có thể mở rộng)
 set KEY=
 if "%EDITION%"=="ServerDatacenter" set KEY=%WS2019_DC%
 if "%EDITION%"=="ServerStandard" set KEY=%WS2019_STD%
@@ -139,19 +152,24 @@ if "%EDITION%"=="Professional" set KEY=%W10_PRO%
 if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
 
 if "%KEY%"=="" (
-    echo Unsupported Windows edition
+    color 0C
+    echo   Unsupported Windows edition.
     pause
     goto MENU
 )
 
-call :status_tmp "Processing Windows..."
+:: ---- TEMP PROCESSING (WILL DISAPPEAR)
+call :status_tmp "Processing Windows activation..."
 timeout /t 2 >nul
 call :status_clear
 
+:: ---- ACTIVATE
 cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
+:: ---- RESULT
+set STATUS=
 for /f "tokens=*" %%A in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr ^| find "expire"') do set STATUS=%%A
 
 echo.
@@ -164,5 +182,6 @@ if defined STATUS (
     call :print "Activation Status" "[Failed]"
 )
 
+echo.
 pause
 goto MENU
