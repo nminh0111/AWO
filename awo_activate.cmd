@@ -94,7 +94,7 @@ set STATUS=%STATUS:~1%
 echo %STATUS% | find "expire" >nul
 if %errorlevel%==0 (
     echo   Activation Status     : Licensed
-    echo   Expiration            : %STATUS%
+    echo   Expiration            : STATUS
 ) else (
     echo   Activation Status     : Notification Mode
 )
