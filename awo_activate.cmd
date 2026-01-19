@@ -144,31 +144,31 @@ if "%EDITION%"=="EnterpriseG" set KEY=%W10_ENTG%
 if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
 
 :: Windows Server
-if "%EDITION%"=="ServerDatacenter" (
+
+set SERVER_TYPE=
+
+if "%EDITION%"=="ServerDatacenter" set SERVER_TYPE=DC
+if "%EDITION%"=="ServerStandard"   set SERVER_TYPE=STD
+if "%EDITION%"=="ServerEssentials" set SERVER_TYPE=ESS
+
+if "%SERVER_TYPE%"=="DC" (
     echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_DC%
     echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_DC%
     echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_DC%
     echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_DC%
 )
 
-if "%EDITION%"=="ServerStandard" (
+if "%SERVER_TYPE%"=="STD" (
     echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_STD%
     echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_STD%
     echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_STD%
     echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_STD%
 )
 
-if "%EDITION%"=="ServerEssentials" (
+if "%SERVER_TYPE%"=="ESS" (
     echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_ESS%
     echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_ESS%
     echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_ESS%
-)
-
-if "%KEY%"=="" (
-    color 0C
-    echo   Unsupported Windows edition.
-    pause
-    goto MENU
 )
 
 echo   Processing Windows...
