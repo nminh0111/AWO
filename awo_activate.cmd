@@ -88,11 +88,8 @@ echo   Build                 : %BUILD%
 echo   Architecture          : %PROCESSOR_ARCHITECTURE%
 echo.
 
-for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do (
-    set "STATUS=%%S"
-)
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
 
-:: Trim leading spaces
 for /f "tokens=* delims= " %%A in ("%STATUS%") do set "STATUS=%%A"
 
 echo %STATUS% | find "expire" >nul
@@ -187,11 +184,8 @@ echo                     ACTIVATION RESULT
 echo ============================================================
 echo.
 
-for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do (
-    set "STATUS=%%S"
-)
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
 
-:: Trim leading spaces
 for /f "tokens=* delims= " %%A in ("%STATUS%") do set "STATUS=%%A"
 
 echo %STATUS% | find "expire" >nul
