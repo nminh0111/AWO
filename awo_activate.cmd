@@ -63,7 +63,7 @@ set /p CHOICE=   Choose an option:
 
 if "%CHOICE%"=="1" goto WINDOWS_MENU
 if "%CHOICE%"=="2" goto OFFICE_MENU
-if "%CHOICE%"=="3" exit /b
+if "%CHOICE%"=="3" goto EXIT
 goto MENU
 
 :: ===============================
@@ -266,3 +266,14 @@ echo.
 echo   0. Back
 set /p _back=   Choose: 
 goto OFFICE_MENU
+
+:: ===============================
+:: EXIT
+:: ===============================
+:EXIT
+cls
+color 0C
+echo.
+echo   Exiting...
+timeout /t 1 >nul
+exit
