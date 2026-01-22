@@ -63,7 +63,7 @@ set /p CHOICE=   Choose an option:
 
 if "%CHOICE%"=="1" goto WINDOWS_MENU
 if "%CHOICE%"=="2" goto OFFICE_MENU
-if "%CHOICE%"=="0" goto EXIT
+if "%CHOICE%"=="3" goto EXIT
 goto MENU
 
 :: ===============================
@@ -89,7 +89,7 @@ if "%WCHOICE%"=="0" goto MENU
 goto WINDOWS_MENU
 
 :: ===============================
-:: CHECK STATUS (FIXED)
+:: CHECK STATUS
 :: ===============================
 :CHECK
 cls
@@ -109,7 +109,7 @@ echo   Build                 : %BUILD%
 echo   Architecture          : %PROCESSOR_ARCHITECTURE%
 echo.
 
-for /f "delims=" %%S in ('call cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
 for /f "tokens=* delims= " %%A in ("%STATUS%") do set "STATUS=%%A"
 
 echo %STATUS% | find "expire" >nul
@@ -126,7 +126,7 @@ pause >nul
 goto WINDOWS_MENU
 
 :: ===============================
-:: ACTIVATE WINDOWS (FIXED)
+:: ACTIVATE WINDOWS
 :: ===============================
 :ACTIVATE
 cls
@@ -161,28 +161,16 @@ if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
 echo   Processing Windows...
 timeout /t 2 >nul
 
-call cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
-call cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
-call cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
+cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
+cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
+cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
 echo.
 echo ============================================================
 echo                     ACTIVATION RESULT
 echo ============================================================
-echo.
 
-for /f "delims=" %%S in ('call cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
-for /f "tokens=* delims= " %%A in ("%STATUS%") do set "STATUS=%%A"
-
-echo %STATUS% | find "expire" >nul
-if %errorlevel%==0 (
-    color 0A
-    echo   Activation Status       : [Successful]
-    echo   Expiration              : %STATUS%
-) else (
-    color 0C
-    echo   Activation Status       : [Failed]
-)
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
 
 echo.
 echo   Press any key to go back...
@@ -190,7 +178,7 @@ pause >nul
 goto WINDOWS_MENU
 
 :: ===============================
-:: OFFICE MENU (UNCHANGED)
+:: OFFICE MENU
 :: ===============================
 :OFFICE_MENU
 cls
@@ -219,17 +207,10 @@ color 0E
 echo ============================================================
 echo               OFFICE STATUS CHECK
 echo ============================================================
-echo.
 
 set OSPP=
 if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles%\Microsoft Office\Office16\ospp.vbs
 if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs
-
-if "%OSPP%"=="" (
-    color 0C
-    echo   Office is NOT installed.
-    goto OFFICE_DOWNLOAD
-)
 
 cscript //nologo "%OSPP%" /dstatus
 
@@ -244,18 +225,10 @@ color 0F
 echo ============================================================
 echo               OFFICE KMS ACTIVATION
 echo ============================================================
-echo.
-
-set OSPP=
-if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles%\Microsoft Office\Office16\ospp.vbs
-if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs
-
-if "%OSPP%"=="" goto OFFICE_DOWNLOAD
 
 cscript //nologo "%OSPP%" /sethst:%KMS_HOST%
 cscript //nologo "%OSPP%" /setprt:%KMS_PORT%
 cscript //nologo "%OSPP%" /act
-cscript //nologo "%OSPP%" /dstatus
 
 echo.
 echo   Press any key to go back...
@@ -264,15 +237,7 @@ goto OFFICE_MENU
 
 :OFFICE_DOWNLOAD
 cls
-color 09
-echo ============================================================
-echo               OFFICE DOWNLOAD
-echo ============================================================
-echo.
-start "" "https://massgrave.dev/office_c2r_links"
-
-echo.
-echo   Press any key to go back...
+start "" "https://www.microsoft.com/office"
 pause >nul
 goto OFFICE_MENU
 
@@ -280,5 +245,4 @@ goto OFFICE_MENU
 :: EXIT
 :: ===============================
 :EXIT
-cls
 exit
