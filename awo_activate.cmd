@@ -63,7 +63,7 @@ set /p CHOICE=   Choose an option:
 
 if "%CHOICE%"=="1" goto WINDOWS_MENU
 if "%CHOICE%"=="2" goto OFFICE_MENU
-if "%CHOICE%"=="3" goto END
+if "%CHOICE%"=="3" exit /b
 goto MENU
 
 :: ===============================
@@ -89,7 +89,7 @@ if "%WCHOICE%"=="3" goto MENU
 goto WINDOWS_MENU
 
 :: ===============================
-:: CHECK STATUS  (GIỮ NGUYÊN)
+:: CHECK STATUS
 :: ===============================
 :CHECK
 cls
@@ -121,12 +121,12 @@ if %errorlevel%==0 (
 )
 
 echo.
-echo   Press any key to go back...
-pause >nul
+echo   [B] Back to Windows Menu
+choice /c B /n /m "   Choose: "
 goto WINDOWS_MENU
 
 :: ===============================
-:: ACTIVATE WINDOWS  (GIỮ NGUYÊN FORMAT)
+:: ACTIVATE WINDOWS
 :: ===============================
 :ACTIVATE
 cls
@@ -145,45 +145,8 @@ echo.
 
 set KEY=
 
-:: Windows 10
 if "%EDITION%"=="Professional" set KEY=%W10_PRO%
-if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
-if "%EDITION%"=="ProfessionalWorkstation" set KEY=%W10_PROWS%
-if "%EDITION%"=="ProfessionalWorkstationN" set KEY=%W10_PROWSN%
-if "%EDITION%"=="ProfessionalEducation" set KEY=%W10_PROEDU%
-if "%EDITION%"=="ProfessionalEducationN" set KEY=%W10_PROEDUN%
-if "%EDITION%"=="Education" set KEY=%W10_EDU%
-if "%EDITION%"=="EducationN" set KEY=%W10_EDUN%
 if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
-if "%EDITION%"=="EnterpriseN" set KEY=%W10_ENTN%
-if "%EDITION%"=="EnterpriseG" set KEY=%W10_ENTG%
-if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
-
-:: Windows Server
-set SERVER_TYPE=
-if "%EDITION%"=="ServerDatacenter" set SERVER_TYPE=DC
-if "%EDITION%"=="ServerStandard"   set SERVER_TYPE=STD
-if "%EDITION%"=="ServerEssentials" set SERVER_TYPE=ESS
-
-if "%SERVER_TYPE%"=="DC" (
-    echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_DC%
-    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_DC%
-    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_DC%
-    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_DC%
-)
-
-if "%SERVER_TYPE%"=="STD" (
-    echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_STD%
-    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_STD%
-    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_STD%
-    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_STD%
-)
-
-if "%SERVER_TYPE%"=="ESS" (
-    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_ESS%
-    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_ESS%
-    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_ESS%
-)
 
 echo   Processing Windows...
 timeout /t 2 >nul
@@ -209,17 +172,16 @@ if %errorlevel%==0 (
 ) else (
     color 0C
     echo   Activation Status       : [Failed]
-    echo   License State           : [Notification Mode]
 )
 
 color 0E
 echo.
-echo   Press any key to go back...
-pause >nul
+echo   [B] Back to Windows Menu
+choice /c B /n /m "   Choose: "
 goto WINDOWS_MENU
 
 :: ===============================
-:: OFFICE MENU (MỚI)
+:: OFFICE MENU
 :: ===============================
 :OFFICE_MENU
 cls
@@ -257,17 +219,14 @@ if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" set OSPP=%Prog
 if "%OSPP%"=="" (
     color 0C
     echo   Office is NOT installed.
-    echo.
-    echo   Press any key to download Office...
-    pause >nul
     goto OFFICE_DOWNLOAD
 )
 
 cscript //nologo "%OSPP%" /dstatus
 
 echo.
-echo   Press any key to go back...
-pause >nul
+echo   [B] Back to Office Menu
+choice /c B /n /m "   Choose: "
 goto OFFICE_MENU
 
 :OFFICE_ACTIVATE
@@ -282,26 +241,16 @@ set OSPP=
 if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles%\Microsoft Office\Office16\ospp.vbs
 if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs
 
-if "%OSPP%"=="" (
-    color 0C
-    echo   Office is NOT installed.
-    timeout /t 2 >nul
-    goto OFFICE_DOWNLOAD
-)
-
-echo   Using KMS Server: %KMS_HOST%:%KMS_PORT%
-echo.
+if "%OSPP%"=="" goto OFFICE_DOWNLOAD
 
 cscript //nologo "%OSPP%" /sethst:%KMS_HOST%
 cscript //nologo "%OSPP%" /setprt:%KMS_PORT%
 cscript //nologo "%OSPP%" /act
-
-echo.
 cscript //nologo "%OSPP%" /dstatus
 
 echo.
-echo   Press any key to go back...
-pause >nul
+echo   [B] Back to Office Menu
+choice /c B /n /m "   Choose: "
 goto OFFICE_MENU
 
 :OFFICE_DOWNLOAD
@@ -311,15 +260,9 @@ echo ============================================================
 echo               OFFICE DOWNLOAD
 echo ============================================================
 echo.
-echo   Opening Microsoft Office download page...
-echo.
-
-start "" "https://massgrave.dev/office_c2r_links"
+start "" "https://www.microsoft.com/office"
 
 echo.
-echo   Press any key to go back...
-pause >nul
+echo   [B] Back to Office Menu
+choice /c B /n /m "   Choose: "
 goto OFFICE_MENU
-:END
-endlocal
-exit
