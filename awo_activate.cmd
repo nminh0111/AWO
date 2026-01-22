@@ -4,7 +4,7 @@ setlocal EnableExtensions
 :: ===============================
 :: KMS SERVER CONFIG
 :: ===============================
-set KMS_HOST=KMS.YOUR.DOMAIN
+set KMS_HOST=KMS.DIGIBOY.IR
 set KMS_PORT=1688
 
 :: ===============================
