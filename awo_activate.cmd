@@ -269,7 +269,7 @@ echo ============================================================
 echo               OFFICE DOWNLOAD
 echo ============================================================
 echo.
-start "" "https://www.microsoft.com/office"
+start "" "https://massgrave.dev/office_c2r_links"
 
 echo.
 echo   Press any key to go back...
