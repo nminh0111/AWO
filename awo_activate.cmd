@@ -121,8 +121,8 @@ if %errorlevel%==0 (
 )
 
 echo.
-echo   0. Back
-set /p _back=   Choose: 
+echo   Press any key to go back...
+pause >nul
 goto WINDOWS_MENU
 
 :: ===============================
@@ -146,7 +146,17 @@ echo.
 set KEY=
 
 if "%EDITION%"=="Professional" set KEY=%W10_PRO%
+if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
+if "%EDITION%"=="ProfessionalWorkstation" set KEY=%W10_PROWS%
+if "%EDITION%"=="ProfessionalWorkstationN" set KEY=%W10_PROWSN%
+if "%EDITION%"=="ProfessionalEducation" set KEY=%W10_PROEDU%
+if "%EDITION%"=="ProfessionalEducationN" set KEY=%W10_PROEDUN%
+if "%EDITION%"=="Education" set KEY=%W10_EDU%
+if "%EDITION%"=="EducationN" set KEY=%W10_EDUN%
 if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
+if "%EDITION%"=="EnterpriseN" set KEY=%W10_ENTN%
+if "%EDITION%"=="EnterpriseG" set KEY=%W10_ENTG%
+if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
 
 echo   Processing Windows...
 timeout /t 2 >nul
@@ -174,10 +184,10 @@ if %errorlevel%==0 (
     echo   Activation Status       : [Failed]
 )
 
-color 0E
 echo.
-echo   0. Back
-set /p _back=   Choose: 
+color 0E
+echo   Press any key to go back...
+pause >nul
 goto WINDOWS_MENU
 
 :: ===============================
@@ -225,8 +235,8 @@ if "%OSPP%"=="" (
 cscript //nologo "%OSPP%" /dstatus
 
 echo.
-echo   0. Back
-set /p _back=   Choose: 
+echo   Press any key to go back...
+pause >nul
 goto OFFICE_MENU
 
 :OFFICE_ACTIVATE
@@ -249,8 +259,8 @@ cscript //nologo "%OSPP%" /act
 cscript //nologo "%OSPP%" /dstatus
 
 echo.
-echo   0. Back
-set /p _back=   Choose: 
+echo   Press any key to go back...
+pause >nul
 goto OFFICE_MENU
 
 :OFFICE_DOWNLOAD
@@ -263,8 +273,8 @@ echo.
 start "" "https://www.microsoft.com/office"
 
 echo.
-echo   0. Back
-set /p _back=   Choose: 
+echo   Press any key to go back...
+pause >nul
 goto OFFICE_MENU
 
 :: ===============================
@@ -272,8 +282,4 @@ goto OFFICE_MENU
 :: ===============================
 :EXIT
 cls
-color 0C
-echo.
-echo   Exiting...
-timeout /t 1 >nul
 exit
