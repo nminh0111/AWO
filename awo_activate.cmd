@@ -63,7 +63,7 @@ set /p CHOICE=   Choose an option:
 
 if "%CHOICE%"=="1" goto WINDOWS_MENU
 if "%CHOICE%"=="2" goto OFFICE_MENU
-if "%CHOICE%"=="3" exit /b
+if "%CHOICE%"=="3" goto END
 goto MENU
 
 :: ===============================
@@ -320,3 +320,6 @@ echo.
 echo   Press any key to go back...
 pause >nul
 goto OFFICE_MENU
+:END
+endlocal
+exit
