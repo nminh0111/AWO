@@ -1,11 +1,10 @@
 @echo off
-setlocal EnableDelayedExpansion
-title Windows Activation (KMS)
+setlocal EnableExtensions
 
 :: ===============================
-:: KMS CONFIG
+:: KMS SERVER CONFIG (ALREADY YOURS)
 :: ===============================
-set KMS_HOST=KMS.DIGIBOY.IR
+set KMS_HOST=KMS.YOUR.DOMAIN
 set KMS_PORT=1688
 
 :: ===============================
@@ -46,9 +45,31 @@ set W10_ENTG=YYVX9-NTFWV-6MDM3-9PT4T-4M68B
 set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
 
 :: ===============================
-:: MENU
+:: MAIN MENU
 :: ===============================
 :MENU
+cls
+color 0A
+echo ============================================================
+echo               KMS ACTIVATION MANAGER
+echo ============================================================
+echo.
+echo   1. Windows
+echo   2. Office
+echo   3. Exit
+echo.
+echo ------------------------------------------------------------
+set /p CHOICE=   Choose an option:
+
+if "%CHOICE%"=="1" goto WINDOWS_MENU
+if "%CHOICE%"=="2" goto OFFICE_MENU
+if "%CHOICE%"=="3" exit /b
+goto MENU
+
+:: ===============================
+:: WINDOWS MENU
+:: ===============================
+:WINDOWS_MENU
 cls
 color 0A
 echo ============================================================
@@ -57,18 +78,18 @@ echo ============================================================
 echo.
 echo   1. Check OS and activation status
 echo   2. Activate Windows (KMS)
-echo   3. Exit
+echo   3. Back
 echo.
 echo ------------------------------------------------------------
-set /p CHOICE=   Choose an option: 
+set /p WCHOICE=   Choose an option:
 
-if "%CHOICE%"=="1" goto CHECK
-if "%CHOICE%"=="2" goto ACTIVATE
-if "%CHOICE%"=="3" exit /b
-goto MENU
+if "%WCHOICE%"=="1" goto CHECK
+if "%WCHOICE%"=="2" goto ACTIVATE
+if "%WCHOICE%"=="3" goto MENU
+goto WINDOWS_MENU
 
 :: ===============================
-:: CHECK STATUS
+:: CHECK STATUS  (UNCHANGED)
 :: ===============================
 :CHECK
 cls
@@ -89,7 +110,6 @@ echo   Architecture          : %PROCESSOR_ARCHITECTURE%
 echo.
 
 for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
-
 for /f "tokens=* delims= " %%A in ("%STATUS%") do set "STATUS=%%A"
 
 echo %STATUS% | find "expire" >nul
@@ -99,16 +119,13 @@ if %errorlevel%==0 (
 ) else (
     echo   Activation Status     : Notification Mode
 )
+
 echo.
-
-color 0E
-echo   Press any key to go back to menu...
-pause >nul
-goto MENU
-
+pause
+goto WINDOWS_MENU
 
 :: ===============================
-:: ACTIVATE
+:: ACTIVATE WINDOWS (UNCHANGED)
 :: ===============================
 :ACTIVATE
 cls
@@ -120,8 +137,6 @@ echo.
 
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
 for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
-
-
 
 echo   Detected OS             : %PRODUCT%
 echo   Edition                 : %EDITION%
@@ -144,9 +159,7 @@ if "%EDITION%"=="EnterpriseG" set KEY=%W10_ENTG%
 if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
 
 :: Windows Server
-
 set SERVER_TYPE=
-
 if "%EDITION%"=="ServerDatacenter" set SERVER_TYPE=DC
 if "%EDITION%"=="ServerStandard"   set SERVER_TYPE=STD
 if "%EDITION%"=="ServerEssentials" set SERVER_TYPE=ESS
@@ -179,54 +192,116 @@ cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
 echo.
+cscript //nologo %windir%\system32\slmgr.vbs /xpr
+echo.
+pause
+goto WINDOWS_MENU
+
+:: ===============================
+:: OFFICE MENU
+:: ===============================
+:OFFICE_MENU
+cls
+color 0B
 echo ============================================================
-echo                     ACTIVATION RESULT
+echo               OFFICE ACTIVATION (KMS)
+echo ============================================================
+echo.
+echo   1. Check Office status
+echo   2. Activate Office (KMS)
+echo   3. Download Office
+echo   4. Back
+echo.
+echo ------------------------------------------------------------
+set /p OCHOICE=   Choose an option:
+
+if "%OCHOICE%"=="1" goto OFFICE_CHECK
+if "%OCHOICE%"=="2" goto OFFICE_ACTIVATE
+if "%OCHOICE%"=="3" goto OFFICE_DOWNLOAD
+if "%OCHOICE%"=="4" goto MENU
+goto OFFICE_MENU
+
+:: ===============================
+:: OFFICE CHECK
+:: ===============================
+:OFFICE_CHECK
+cls
+color 0E
+echo ============================================================
+echo               OFFICE STATUS CHECK
 echo ============================================================
 echo.
 
-for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
+set OSPP=
+if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles%\Microsoft Office\Office16\ospp.vbs
+if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs
 
-for /f "tokens=* delims= " %%A in ("%STATUS%") do set "STATUS=%%A"
-
-echo %STATUS% | find "expire" >nul
-if %errorlevel%==0 (
-    color 0A
-    echo   Activation Status       : [Successful]
-    echo   Expiration              : %STATUS%
-) else (
+if "%OSPP%"=="" (
     color 0C
-    echo   Activation Status       : [Failed]
-    echo   License State           : [Notification Mode]
+    echo   Office is NOT installed.
+    pause
+    goto OFFICE_MENU
 )
-:: ===============================
-:: AUTO REACTIVATION SETUP
-:: ===============================
 
-set AUTO_CMD=C:\ProgramData\auto_reactivate.cmd
-
-(
-echo @echo off
-echo setlocal
-echo cscript //nologo %%windir%%\system32\slmgr.vbs /xpr ^| find "expire" ^>nul
-echo if errorlevel 1 exit /b
-echo cscript //nologo %%windir%%\system32\slmgr.vbs /ato ^>nul
-echo exit /b
-) > "%AUTO_CMD%"
-
-schtasks /create ^
- /tn "Auto KMS Reactivation" ^
- /tr "%AUTO_CMD%" ^
- /sc weekly ^
- /d MON ^
- /st 09:00 ^
- /ru SYSTEM ^
- /rl HIGHEST ^
- /f >nul
-
-color 0E
-
-color 0E
+cscript //nologo "%OSPP%" /dstatus
 echo.
-echo   Press any key to go back to menu...
-pause >nul
-goto MENU
+pause
+goto OFFICE_MENU
+
+:: ===============================
+:: OFFICE ACTIVATE
+:: ===============================
+:OFFICE_ACTIVATE
+cls
+color 0F
+echo ============================================================
+echo               OFFICE KMS ACTIVATION
+echo ============================================================
+echo.
+
+set OSPP=
+if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles%\Microsoft Office\Office16\ospp.vbs
+if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs
+
+if "%OSPP%"=="" (
+    color 0C
+    echo   Office is NOT installed.
+    timeout /t 2 >nul
+    goto OFFICE_DOWNLOAD
+)
+
+echo   Using KMS Server: %KMS_HOST%:%KMS_PORT%
+echo.
+
+:: OPTIONAL: add your Office GVLK below if needed
+:: set OFFICE_GVLK=XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
+:: cscript //nologo "%OSPP%" /inpkey:%OFFICE_GVLK%
+
+cscript //nologo "%OSPP%" /sethst:%KMS_HOST%
+cscript //nologo "%OSPP%" /setprt:%KMS_PORT%
+cscript //nologo "%OSPP%" /act
+
+echo.
+cscript //nologo "%OSPP%" /dstatus
+echo.
+pause
+goto OFFICE_MENU
+
+:: ===============================
+:: OFFICE DOWNLOAD
+:: ===============================
+:OFFICE_DOWNLOAD
+cls
+color 09
+echo ============================================================
+echo               OFFICE DOWNLOAD
+echo ============================================================
+echo.
+echo   Opening Microsoft Office download page...
+echo.
+
+start "" "https://www.microsoft.com/office"
+
+echo.
+pause
+goto OFFICE_MENU
