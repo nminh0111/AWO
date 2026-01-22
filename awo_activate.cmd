@@ -4,7 +4,7 @@ setlocal EnableExtensions
 :: ===============================
 :: KMS SERVER CONFIG
 :: ===============================
-set KMS_HOST=KMS.DIGIBOY.IR
+set KMS_HOST=KMS.YOUR.DOMAIN
 set KMS_PORT=1688
 
 :: ===============================
@@ -59,7 +59,7 @@ echo   2. Office
 echo   3. Exit
 echo.
 echo ------------------------------------------------------------
-set /p CHOICE=   Choose an option:
+set /p CHOICE=   Choose an option: 
 
 if "%CHOICE%"=="1" goto WINDOWS_MENU
 if "%CHOICE%"=="2" goto OFFICE_MENU
@@ -81,7 +81,7 @@ echo   2. Activate Windows (KMS)
 echo   3. Back
 echo.
 echo ------------------------------------------------------------
-set /p WCHOICE=   Choose an option:
+set /p WCHOICE=   Choose an option: 
 
 if "%WCHOICE%"=="1" goto CHECK
 if "%WCHOICE%"=="2" goto ACTIVATE
@@ -89,7 +89,7 @@ if "%WCHOICE%"=="3" goto MENU
 goto WINDOWS_MENU
 
 :: ===============================
-:: CHECK STATUS  (UNCHANGED)
+:: CHECK STATUS  (GIỮ NGUYÊN)
 :: ===============================
 :CHECK
 cls
@@ -121,11 +121,12 @@ if %errorlevel%==0 (
 )
 
 echo.
-pause
+echo   Press any key to go back...
+pause >nul
 goto WINDOWS_MENU
 
 :: ===============================
-:: ACTIVATE WINDOWS (UNCHANGED)
+:: ACTIVATE WINDOWS  (GIỮ NGUYÊN FORMAT)
 :: ===============================
 :ACTIVATE
 cls
@@ -192,13 +193,33 @@ cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
 echo.
-cscript //nologo %windir%\system32\slmgr.vbs /xpr
+echo ============================================================
+echo                     ACTIVATION RESULT
+echo ============================================================
 echo.
-pause
+
+for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
+for /f "tokens=* delims= " %%A in ("%STATUS%") do set "STATUS=%%A"
+
+echo %STATUS% | find "expire" >nul
+if %errorlevel%==0 (
+    color 0A
+    echo   Activation Status       : [Successful]
+    echo   Expiration              : %STATUS%
+) else (
+    color 0C
+    echo   Activation Status       : [Failed]
+    echo   License State           : [Notification Mode]
+)
+
+color 0E
+echo.
+echo   Press any key to go back...
+pause >nul
 goto WINDOWS_MENU
 
 :: ===============================
-:: OFFICE MENU
+:: OFFICE MENU (MỚI)
 :: ===============================
 :OFFICE_MENU
 cls
@@ -213,7 +234,7 @@ echo   3. Download Office
 echo   4. Back
 echo.
 echo ------------------------------------------------------------
-set /p OCHOICE=   Choose an option:
+set /p OCHOICE=   Choose an option: 
 
 if "%OCHOICE%"=="1" goto OFFICE_CHECK
 if "%OCHOICE%"=="2" goto OFFICE_ACTIVATE
@@ -221,9 +242,6 @@ if "%OCHOICE%"=="3" goto OFFICE_DOWNLOAD
 if "%OCHOICE%"=="4" goto MENU
 goto OFFICE_MENU
 
-:: ===============================
-:: OFFICE CHECK
-:: ===============================
 :OFFICE_CHECK
 cls
 color 0E
@@ -239,18 +257,19 @@ if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" set OSPP=%Prog
 if "%OSPP%"=="" (
     color 0C
     echo   Office is NOT installed.
-    pause
-    goto OFFICE_MENU
+    echo.
+    echo   Press any key to download Office...
+    pause >nul
+    goto OFFICE_DOWNLOAD
 )
 
 cscript //nologo "%OSPP%" /dstatus
+
 echo.
-pause
+echo   Press any key to go back...
+pause >nul
 goto OFFICE_MENU
 
-:: ===============================
-:: OFFICE ACTIVATE
-:: ===============================
 :OFFICE_ACTIVATE
 cls
 color 0F
@@ -273,23 +292,18 @@ if "%OSPP%"=="" (
 echo   Using KMS Server: %KMS_HOST%:%KMS_PORT%
 echo.
 
-:: OPTIONAL: add your Office GVLK below if needed
-:: set OFFICE_GVLK=XXXXX-XXXXX-XXXXX-XXXXX-XXXXX
-:: cscript //nologo "%OSPP%" /inpkey:%OFFICE_GVLK%
-
 cscript //nologo "%OSPP%" /sethst:%KMS_HOST%
 cscript //nologo "%OSPP%" /setprt:%KMS_PORT%
 cscript //nologo "%OSPP%" /act
 
 echo.
 cscript //nologo "%OSPP%" /dstatus
+
 echo.
-pause
+echo   Press any key to go back...
+pause >nul
 goto OFFICE_MENU
 
-:: ===============================
-:: OFFICE DOWNLOAD
-:: ===============================
 :OFFICE_DOWNLOAD
 cls
 color 09
@@ -300,8 +314,9 @@ echo.
 echo   Opening Microsoft Office download page...
 echo.
 
-start "" "https://www.microsoft.com/office"
+start "" "https://massgrave.dev/office_c2r_links"
 
 echo.
-pause
+echo   Press any key to go back...
+pause >nul
 goto OFFICE_MENU
