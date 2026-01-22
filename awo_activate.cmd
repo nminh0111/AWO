@@ -78,14 +78,14 @@ echo ============================================================
 echo.
 echo   1. Check OS and activation status
 echo   2. Activate Windows (KMS)
-echo   3. Back
+echo   0. Back
 echo.
 echo ------------------------------------------------------------
 set /p WCHOICE=   Choose an option: 
 
 if "%WCHOICE%"=="1" goto CHECK
 if "%WCHOICE%"=="2" goto ACTIVATE
-if "%WCHOICE%"=="3" goto MENU
+if "%WCHOICE%"=="0" goto MENU
 goto WINDOWS_MENU
 
 :: ===============================
@@ -121,8 +121,8 @@ if %errorlevel%==0 (
 )
 
 echo.
-echo   [B] Back to Windows Menu
-choice /c B /n /m "   Choose: "
+echo   0. Back
+set /p _back=   Choose: 
 goto WINDOWS_MENU
 
 :: ===============================
@@ -176,8 +176,8 @@ if %errorlevel%==0 (
 
 color 0E
 echo.
-echo   [B] Back to Windows Menu
-choice /c B /n /m "   Choose: "
+echo   0. Back
+set /p _back=   Choose: 
 goto WINDOWS_MENU
 
 :: ===============================
@@ -193,7 +193,7 @@ echo.
 echo   1. Check Office status
 echo   2. Activate Office (KMS)
 echo   3. Download Office
-echo   4. Back
+echo   0. Back
 echo.
 echo ------------------------------------------------------------
 set /p OCHOICE=   Choose an option: 
@@ -201,7 +201,7 @@ set /p OCHOICE=   Choose an option:
 if "%OCHOICE%"=="1" goto OFFICE_CHECK
 if "%OCHOICE%"=="2" goto OFFICE_ACTIVATE
 if "%OCHOICE%"=="3" goto OFFICE_DOWNLOAD
-if "%OCHOICE%"=="4" goto MENU
+if "%OCHOICE%"=="0" goto MENU
 goto OFFICE_MENU
 
 :OFFICE_CHECK
@@ -225,8 +225,8 @@ if "%OSPP%"=="" (
 cscript //nologo "%OSPP%" /dstatus
 
 echo.
-echo   [B] Back to Office Menu
-choice /c B /n /m "   Choose: "
+echo   0. Back
+set /p _back=   Choose: 
 goto OFFICE_MENU
 
 :OFFICE_ACTIVATE
@@ -249,8 +249,8 @@ cscript //nologo "%OSPP%" /act
 cscript //nologo "%OSPP%" /dstatus
 
 echo.
-echo   [B] Back to Office Menu
-choice /c B /n /m "   Choose: "
+echo   0. Back
+set /p _back=   Choose: 
 goto OFFICE_MENU
 
 :OFFICE_DOWNLOAD
@@ -263,6 +263,6 @@ echo.
 start "" "https://www.microsoft.com/office"
 
 echo.
-echo   [B] Back to Office Menu
-choice /c B /n /m "   Choose: "
+echo   0. Back
+set /p _back=   Choose: 
 goto OFFICE_MENU
