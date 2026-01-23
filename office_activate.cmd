@@ -3,9 +3,9 @@ setlocal EnableExtensions
 title Office Activation (KMS)
 
 :: ===============================
-:: KMS CONFIG (DÙNG CHUNG)
+:: KMS CONFIG
 :: ===============================
-set KMS_HOST=...
+set KMS_HOST=KMS.DIGIBOY.IR
 set KMS_PORT=1688
 
 :: ===============================
@@ -105,3 +105,4 @@ cscript //nologo "%OSPP%" /act
 echo.
 pause
 goto MENU
+
