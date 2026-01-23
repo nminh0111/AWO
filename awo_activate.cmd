@@ -197,6 +197,30 @@ cscript //nologo %windir%\system32\slmgr.vbs /skms %KMS_HOST%:%KMS_PORT% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
+:: ===============================
+:: AUTO REACTIVATION SETUP
+:: ===============================
+set AUTO_CMD=C:\ProgramData\auto_reactivate.cmd
+
+(
+echo @echo off
+echo setlocal
+echo cscript //nologo %%windir%%\system32\slmgr.vbs /xpr ^| find "expire" ^>nul
+echo if errorlevel 1 exit /b
+echo cscript //nologo %%windir%%\system32\slmgr.vbs /ato ^>nul
+echo exit /b
+) > "%AUTO_CMD%"
+
+schtasks /create ^
+ /tn "Auto KMS Reactivation" ^
+ /tr "%AUTO_CMD%" ^
+ /sc weekly ^
+ /d MON ^
+ /st 09:00 ^
+ /ru SYSTEM ^
+ /rl HIGHEST ^
+ /f >nul
+
 echo.
 color 0E
 echo   Press any key to go back to menu...
