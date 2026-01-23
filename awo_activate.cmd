@@ -47,29 +47,33 @@ set W10_ENTGN=44RPN-FTY23-9VTTB-MP9BX-T84FV
 :: ===============================
 :: MAIN MENU
 :: ===============================
-:MENU
+:MAIN_MENU
 cls
 color 0A
 echo ============================================================
-echo               KMS ACTIVATION MANAGER
+echo               ACTIVATION TOOL (KMS)
 echo ============================================================
 echo.
-echo   1. Windows
-echo   2. Office
+echo   1. Windows Activation
+echo   2. Office Activation
 echo   3. Exit
 echo.
 echo ------------------------------------------------------------
-set /p CHOICE=   Choose an option: 
+set /p MAIN_CHOICE=   Choose an option: 
 
-if "%CHOICE%"=="1" goto WINDOWS_MENU
-if "%CHOICE%"=="2" goto OFFICE_MENU
-if "%CHOICE%"=="3" goto EXIT
-goto MENU
+if "%MAIN_CHOICE%"=="1" goto MENU
+if "%MAIN_CHOICE%"=="2" goto OFFICE_MENU
+if "%MAIN_CHOICE%"=="3" exit /b
+goto MAIN_MENU
+
+:: =============================================================
+:: ======================= WINDOWS PART ========================
+:: =============================================================
 
 :: ===============================
-:: WINDOWS MENU
+:: MENU
 :: ===============================
-:WINDOWS_MENU
+:MENU
 cls
 color 0A
 echo ============================================================
@@ -78,15 +82,15 @@ echo ============================================================
 echo.
 echo   1. Check OS and activation status
 echo   2. Activate Windows (KMS)
-echo   0. Back
+echo   3. Back to Main Menu
 echo.
 echo ------------------------------------------------------------
-set /p WCHOICE=   Choose an option: 
+set /p CHOICE=   Choose an option: 
 
-if "%WCHOICE%"=="1" goto CHECK
-if "%WCHOICE%"=="2" goto ACTIVATE
-if "%WCHOICE%"=="0" goto MENU
-goto WINDOWS_MENU
+if "%CHOICE%"=="1" goto CHECK
+if "%CHOICE%"=="2" goto ACTIVATE
+if "%CHOICE%"=="3" goto MAIN_MENU
+goto MENU
 
 :: ===============================
 :: CHECK STATUS
@@ -121,9 +125,10 @@ if %errorlevel%==0 (
 )
 
 echo.
-echo   Press any key to go back...
+color 0E
+echo   Press any key to go back to menu...
 pause >nul
-goto WINDOWS_MENU
+goto MENU
 
 :: ===============================
 :: ACTIVATE WINDOWS
@@ -144,19 +149,26 @@ echo   Edition                 : %EDITION%
 echo.
 
 set KEY=
+set SERVER_TYPE=
 
 if "%EDITION%"=="Professional" set KEY=%W10_PRO%
 if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
-if "%EDITION%"=="ProfessionalWorkstation" set KEY=%W10_PROWS%
-if "%EDITION%"=="ProfessionalWorkstationN" set KEY=%W10_PROWSN%
-if "%EDITION%"=="ProfessionalEducation" set KEY=%W10_PROEDU%
-if "%EDITION%"=="ProfessionalEducationN" set KEY=%W10_PROEDUN%
 if "%EDITION%"=="Education" set KEY=%W10_EDU%
-if "%EDITION%"=="EducationN" set KEY=%W10_EDUN%
 if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
-if "%EDITION%"=="EnterpriseN" set KEY=%W10_ENTN%
-if "%EDITION%"=="EnterpriseG" set KEY=%W10_ENTG%
-if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
+
+if "%EDITION%"=="ServerDatacenter" set SERVER_TYPE=DC
+if "%EDITION%"=="ServerStandard" set SERVER_TYPE=STD
+if "%EDITION%"=="ServerEssentials" set SERVER_TYPE=ESS
+
+if "%SERVER_TYPE%"=="DC" (
+    echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_DC%
+    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_DC%
+)
+
+if "%SERVER_TYPE%"=="STD" (
+    echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_STD%
+    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_STD%
+)
 
 echo   Processing Windows...
 timeout /t 2 >nul
@@ -166,83 +178,102 @@ cscript //nologo %windir%\system32\slmgr.vbs /ipk %KEY% >nul
 cscript //nologo %windir%\system32\slmgr.vbs /ato >nul
 
 echo.
-echo ============================================================
-echo                     ACTIVATION RESULT
-echo ============================================================
-
-for /f "delims=" %%S in ('cscript //nologo %windir%\system32\slmgr.vbs /xpr') do set "STATUS=%%S"
-
-echo.
-echo   Press any key to go back...
+color 0E
+echo   Press any key to go back to menu...
 pause >nul
-goto WINDOWS_MENU
+goto MENU
 
-:: ===============================
-:: OFFICE MENU
-:: ===============================
+:: =============================================================
+:: ======================== OFFICE PART ========================
+:: =============================================================
+
 :OFFICE_MENU
 cls
-color 0B
+color 0A
 echo ============================================================
 echo               OFFICE ACTIVATION (KMS)
 echo ============================================================
 echo.
-echo   1. Check Office status
+echo   1. Check Office activation status
 echo   2. Activate Office (KMS)
-echo   3. Download Office
-echo   0. Back
+echo   3. Back to Main Menu
 echo.
 echo ------------------------------------------------------------
-set /p OCHOICE=   Choose an option: 
+set /p OFFICE_CHOICE=   Choose an option: 
 
-if "%OCHOICE%"=="1" goto OFFICE_CHECK
-if "%OCHOICE%"=="2" goto OFFICE_ACTIVATE
-if "%OCHOICE%"=="3" goto OFFICE_DOWNLOAD
-if "%OCHOICE%"=="0" goto MENU
+if "%OFFICE_CHOICE%"=="1" goto OFFICE_CHECK
+if "%OFFICE_CHOICE%"=="2" goto OFFICE_ACTIVATE
+if "%OFFICE_CHOICE%"=="3" goto MAIN_MENU
 goto OFFICE_MENU
 
 :OFFICE_CHECK
 cls
-color 0E
+color 0B
 echo ============================================================
-echo               OFFICE STATUS CHECK
+echo              OFFICE ACTIVATION STATUS
 echo ============================================================
+echo.
 
 set OSPP=
-if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles%\Microsoft Office\Office16\ospp.vbs
-if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs
+if exist "%ProgramFiles%\Microsoft Office\Office16\OSPP.VBS" set OSPP=%ProgramFiles%\Microsoft Office\Office16\OSPP.VBS
+if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\OSPP.VBS" set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\OSPP.VBS
+
+if not defined OSPP (
+    color 0C
+    echo   Office Status          : Not Installed
+    echo.
+    echo   1. Download Office from Microsoft
+    echo   2. Back
+    set /p X=
+    if "%X%"=="1" goto OFFICE_DOWNLOAD
+    goto OFFICE_MENU
+)
 
 cscript //nologo "%OSPP%" /dstatus
-
 echo.
-echo   Press any key to go back...
-pause >nul
+pause
 goto OFFICE_MENU
 
 :OFFICE_ACTIVATE
 cls
 color 0F
 echo ============================================================
-echo               OFFICE KMS ACTIVATION
+echo              OFFICE KMS ACTIVATION
 echo ============================================================
+echo.
+
+set OSPP=
+if exist "%ProgramFiles%\Microsoft Office\Office16\OSPP.VBS" set OSPP=%ProgramFiles%\Microsoft Office\Office16\OSPP.VBS
+if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\OSPP.VBS" set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\OSPP.VBS
+
+if not defined OSPP (
+    color 0C
+    echo   Office is not installed.
+    echo.
+    echo   1. Download Office from Microsoft
+    echo   2. Back
+    set /p X=
+    if "%X%"=="1" goto OFFICE_DOWNLOAD
+    goto OFFICE_MENU
+)
 
 cscript //nologo "%OSPP%" /sethst:%KMS_HOST%
 cscript //nologo "%OSPP%" /setprt:%KMS_PORT%
 cscript //nologo "%OSPP%" /act
 
 echo.
-echo   Press any key to go back...
-pause >nul
+pause
 goto OFFICE_MENU
 
 :OFFICE_DOWNLOAD
 cls
-start "" "https://www.microsoft.com/office"
-pause >nul
+color 0A
+echo ============================================================
+echo              DOWNLOAD MICROSOFT OFFICE
+echo ============================================================
+echo.
+echo   Redirecting to Microsoft official website...
+echo.
+pause
+start "" "https://www.microsoft.com/microsoft-365"
 goto OFFICE_MENU
-
-:: ===============================
-:: EXIT
-:: ===============================
-:EXIT
-exit
