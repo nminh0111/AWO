@@ -25,15 +25,15 @@ echo.
 echo ------------------------------------------------------------
 set /p CHOICE=   Choose an option: 
 
-if "%CHOICE%"=="1" goto CHECK
-if "%CHOICE%"=="2" goto ACTIVATE
-if "%CHOICE%"=="3" goto :EOF
+if "%CHOICE%"=="1" goto OFFICE_CHECK
+if "%CHOICE%"=="2" goto OFFICE_ACTIVATE
+if "%CHOICE%"=="3" exit /b
 goto OFFICE_MENU
 
 :: ===============================
 :: CHECK STATUS
 :: ===============================
-:CHECK
+:OFFICE_CHECK
 cls
 color 0B
 echo ============================================================
@@ -69,7 +69,7 @@ goto OFFICE_MENU
 :: ===============================
 :: ACTIVATE
 :: ===============================
-:ACTIVATE
+:OFFICE_ACTIVATE
 cls
 color 0F
 echo ============================================================
