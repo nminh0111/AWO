@@ -151,23 +151,43 @@ echo.
 set KEY=
 set SERVER_TYPE=
 
+:: Windows 10
 if "%EDITION%"=="Professional" set KEY=%W10_PRO%
 if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
+if "%EDITION%"=="ProfessionalWorkstation" set KEY=%W10_PROWS%
+if "%EDITION%"=="ProfessionalWorkstationN" set KEY=%W10_PROWSN%
+if "%EDITION%"=="ProfessionalEducation" set KEY=%W10_PROEDU%
+if "%EDITION%"=="ProfessionalEducationN" set KEY=%W10_PROEDUN%
 if "%EDITION%"=="Education" set KEY=%W10_EDU%
+if "%EDITION%"=="EducationN" set KEY=%W10_EDUN%
 if "%EDITION%"=="Enterprise" set KEY=%W10_ENT%
+if "%EDITION%"=="EnterpriseN" set KEY=%W10_ENTN%
+if "%EDITION%"=="EnterpriseG" set KEY=%W10_ENTG%
+if "%EDITION%"=="EnterpriseGN" set KEY=%W10_ENTGN%
 
+:: Windows Server
 if "%EDITION%"=="ServerDatacenter" set SERVER_TYPE=DC
-if "%EDITION%"=="ServerStandard" set SERVER_TYPE=STD
+if "%EDITION%"=="ServerStandard"   set SERVER_TYPE=STD
 if "%EDITION%"=="ServerEssentials" set SERVER_TYPE=ESS
 
 if "%SERVER_TYPE%"=="DC" (
     echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_DC%
     echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_DC%
+    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_DC%
+    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_DC%
 )
 
 if "%SERVER_TYPE%"=="STD" (
     echo %PRODUCT% | find "2022" >nul && set KEY=%WS2022_STD%
     echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_STD%
+    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_STD%
+    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_STD%
+)
+
+if "%SERVER_TYPE%"=="ESS" (
+    echo %PRODUCT% | find "2019" >nul && set KEY=%WS2019_ESS%
+    echo %PRODUCT% | find "2016" >nul && set KEY=%WS2016_ESS%
+    echo %PRODUCT% | find "2012 R2" >nul && set KEY=%WS2012R2_ESS%
 )
 
 echo   Processing Windows...
@@ -271,8 +291,6 @@ color 0A
 echo ============================================================
 echo              DOWNLOAD MICROSOFT OFFICE
 echo ============================================================
-echo.
-echo   Redirecting to Microsoft official website...
 echo.
 pause
 start "" "https://www.microsoft.com/microsoft-365"
