@@ -11,7 +11,7 @@ set KMS_PORT=1688
 :: ===============================
 :: OFFICE MENU
 :: ===============================
-:MENU
+:OFFICE_MENU
 cls
 color 0A
 echo ============================================================
@@ -27,8 +27,8 @@ set /p CHOICE=   Choose an option:
 
 if "%CHOICE%"=="1" goto CHECK
 if "%CHOICE%"=="2" goto ACTIVATE
-if "%CHOICE%"=="3" exit /b
-goto MENU
+if "%CHOICE%"=="3" goto :EOF
+goto OFFICE_MENU
 
 :: ===============================
 :: CHECK STATUS
@@ -58,13 +58,13 @@ if not defined OSPP (
     echo   Microsoft Office is not installed.
     echo.
     pause
-    goto MENU
+    goto OFFICE_MENU
 )
 
 cscript //nologo "%OSPP%" /dstatus
 echo.
 pause
-goto MENU
+goto OFFICE_MENU
 
 :: ===============================
 :: ACTIVATE
@@ -92,7 +92,7 @@ if not defined OSPP (
     echo   Office is not installed.
     echo.
     pause
-    goto MENU
+    goto OFFICE_MENU
 )
 
 echo   Processing Office...
@@ -104,5 +104,4 @@ cscript //nologo "%OSPP%" /act
 
 echo.
 pause
-goto MENU
-
+goto OFFICE_MENU
