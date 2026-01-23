@@ -41,14 +41,22 @@ echo              OFFICE ACTIVATION STATUS
 echo ============================================================
 echo.
 
-set OSPP=
+set "OSPP="
 
 if exist "%ProgramFiles%\Microsoft Office\Office16\OSPP.VBS" (
-    set OSPP=%ProgramFiles%\Microsoft Office\Office16\OSPP.VBS
+    set "OSPP=%ProgramFiles%\Microsoft Office\Office16\OSPP.VBS"
 )
 
 if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\OSPP.VBS" (
-    set OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\OSPP.VBS
+    set "OSPP=%ProgramFiles(x86)%\Microsoft Office\Office16\OSPP.VBS"
+)
+
+if exist "%ProgramFiles%\Microsoft Office\root\Office16\OSPP.VBS" (
+    set "OSPP=%ProgramFiles%\Microsoft Office\root\Office16\OSPP.VBS"
+)
+
+if exist "%ProgramFiles(x86)%\Microsoft Office\root\Office16\OSPP.VBS" (
+    set "OSPP=%ProgramFiles(x86)%\Microsoft Office\root\Office16\OSPP.VBS"
 )
 
 if not defined OSPP (
@@ -105,3 +113,4 @@ cscript //nologo "%OSPP%" /act
 echo.
 pause
 goto OFFICE_MENU
+
