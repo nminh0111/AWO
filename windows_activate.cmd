@@ -202,7 +202,10 @@ if %errorlevel%==0 (
 :: AUTO REACTIVATION SETUP
 :: ===============================
 
-set AUTO_CMD=C:\ProgramData\AWO\auto_reactivate.cmd
+set BASE_DIR=C:\ProgramData\Activate\cache
+set AUTO_CMD=%BASE_DIR%\auto_reactivate.cmd
+
+mkdir "%BASE_DIR%" 2>nul
 
 (
 echo @echo off
