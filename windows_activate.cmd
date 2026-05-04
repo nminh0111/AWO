@@ -202,7 +202,7 @@ if %errorlevel%==0 (
 :: AUTO REACTIVATION SETUP
 :: ===============================
 
-set BASE_DIR=C:\ProgramData\Activate\cache
+set BASE_DIR=C:\ProgramData\Activate\reactivate
 set AUTO_CMD=%BASE_DIR%\auto_reactivate.cmd
 
 mkdir "%BASE_DIR%" 2>nul
