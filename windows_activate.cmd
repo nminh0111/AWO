@@ -202,7 +202,7 @@ if %errorlevel%==0 (
 :: AUTO REACTIVATION SETUP
 :: ===============================
 
-set AUTO_CMD=C:\ProgramData\auto_reactivate.cmd
+set AUTO_CMD=C:\ProgramData\AWO\auto_reactivate.cmd
 
 (
 echo @echo off
