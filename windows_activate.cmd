@@ -31,7 +31,7 @@ set WS2012R2_STD=D2N9P-3P6X9-2R39C-7RTCD-MDVJX
 set WS2012R2_DC=W3GGN-FT8W3-Y4M27-J84CP-Q3VJ9
 set WS2012R2_ESS=KNC87-3J2TX-XB4WP-VCPJV-M4FWM
 
-:: Windows 10
+:: Windows 10 & 11
 set W10_PRO=W269N-WFGWX-YVC9B-4J6C9-T83GX
 set W10_PRON=MH37W-N47XK-V7XM9-C7227-GCQG9
 set W10_PROWS=NRG8B-VKK3Q-CXVCJ-9G2XF-6Q84J
@@ -67,6 +67,27 @@ if "%CHOICE%"=="2" goto ACTIVATE
 if "%CHOICE%"=="3" exit /b
 goto MENU
 
+
+:GET_OS_INFO
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
+
+set OS_NAME=Unknown
+
+echo %PRODUCT% | find "Server" >nul
+if %errorlevel%==0 (
+    set OS_NAME=%PRODUCT%
+) else (
+    if %BUILD% GEQ 22000 (
+        set OS_NAME=Windows 11
+    ) else (
+        set OS_NAME=Windows 10
+    )
+)
+
+exit /b
+
 :: ===============================
 :: CHECK STATUS
 :: ===============================
@@ -78,11 +99,9 @@ echo                 SYSTEM INFORMATION
 echo ============================================================
 echo.
 
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber ^| find "CurrentBuildNumber"') do set BUILD=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
+call :GET_OS_INFO
 
-echo   Operating System      : %PRODUCT%
+echo   Operating System      : %OS_NAME%
 echo   Edition               : %EDITION%
 echo   Build                 : %BUILD%
 echo   Architecture          : %PROCESSOR_ARCHITECTURE%
@@ -118,18 +137,16 @@ echo            WINDOWS KMS ACTIVATION PROCESS
 echo ============================================================
 echo.
 
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionID ^| find "EditionID"') do set EDITION=%%B
-for /f "tokens=2,*" %%A in ('reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion" /v ProductName ^| find "ProductName"') do set PRODUCT=%%B
+call :GET_OS_INFO
 
 
-
-echo   Detected OS             : %PRODUCT%
+echo   Detected OS             : %OS_NAME%
 echo   Edition                 : %EDITION%
 echo.
 
 set KEY=
 
-:: Windows 10
+:: Windows 10 & 11
 if "%EDITION%"=="Professional" set KEY=%W10_PRO%
 if "%EDITION%"=="ProfessionalN" set KEY=%W10_PRON%
 if "%EDITION%"=="ProfessionalWorkstation" set KEY=%W10_PROWS%
